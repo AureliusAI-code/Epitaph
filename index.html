@@ -27,9 +27,9 @@
 html { scroll-behavior:smooth; }
 
 body {
-background: var(–bg);
-color: var(–text);
-font-family: var(–mono);
+background: #080c08;
+color: #ccffcc;
+font-family: ui-monospace, ‘SF Mono’, Menlo, Consolas, ‘Courier New’, monospace;
 font-size: 13px;
 line-height: 1.6;
 overflow-x: hidden;
@@ -459,18 +459,30 @@ KEYFRAMES
     <a href="#create" class="btn">Write Your Will</a>
     <a href="#how"    class="btn btn-r">Learn More</a>
   </div>
-  <div class="stats">
-    <div class="stat"><span class="stat-v" id="sv1">7</span><div class="stat-k">Wills Deployed</div></div>
-    <div class="stat"><span class="stat-v" id="sv2">12.0</span><div class="stat-k">ETH Protected</div></div>
-    <div class="stat"><span class="stat-v" id="sv3">4</span><div class="stat-k">Chains Active</div></div>
-    <div class="stat"><span class="stat-v" id="sv4">2</span><div class="stat-k">Executed</div></div>
-  </div>
-  <div class="feed">
-    <div class="feed-hdr">
-      <div class="feed-lbl">// live activity log</div>
-      <div class="feed-live"><div class="feed-dot"></div>STREAMING</div>
+  <div class="stats" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr;border:1px solid rgba(0,255,65,0.15);background:#0c100c;">
+    <div class="stat" style="padding:1.2rem 0.8rem;text-align:center;border-right:1px solid rgba(0,255,65,0.1);border-bottom:1px solid rgba(0,255,65,0.1);">
+      <span class="stat-v" id="sv1" style="display:block;font-size:2rem;font-weight:700;color:#00ff41;text-shadow:0 0 12px rgba(0,255,65,0.5);line-height:1;letter-spacing:0.05em;">7</span>
+      <div class="stat-k" style="font-size:8px;color:#557755;letter-spacing:0.2em;text-transform:uppercase;margin-top:0.35rem;">Wills Deployed</div>
     </div>
-    <div class="feed-body" id="feedBody"></div>
+    <div class="stat" style="padding:1.2rem 0.8rem;text-align:center;border-bottom:1px solid rgba(0,255,65,0.1);">
+      <span class="stat-v" id="sv2" style="display:block;font-size:2rem;font-weight:700;color:#00ff41;text-shadow:0 0 12px rgba(0,255,65,0.5);line-height:1;letter-spacing:0.05em;">12.0</span>
+      <div class="stat-k" style="font-size:8px;color:#557755;letter-spacing:0.2em;text-transform:uppercase;margin-top:0.35rem;">ETH Protected</div>
+    </div>
+    <div class="stat" style="padding:1.2rem 0.8rem;text-align:center;border-right:1px solid rgba(0,255,65,0.1);">
+      <span class="stat-v" id="sv3" style="display:block;font-size:2rem;font-weight:700;color:#00ff41;text-shadow:0 0 12px rgba(0,255,65,0.5);line-height:1;letter-spacing:0.05em;">4</span>
+      <div class="stat-k" style="font-size:8px;color:#557755;letter-spacing:0.2em;text-transform:uppercase;margin-top:0.35rem;">Chains Active</div>
+    </div>
+    <div class="stat" style="padding:1.2rem 0.8rem;text-align:center;">
+      <span class="stat-v" id="sv4" style="display:block;font-size:2rem;font-weight:700;color:#00ff41;text-shadow:0 0 12px rgba(0,255,65,0.5);line-height:1;letter-spacing:0.05em;">2</span>
+      <div class="stat-k" style="font-size:8px;color:#557755;letter-spacing:0.2em;text-transform:uppercase;margin-top:0.35rem;">Executed</div>
+    </div>
+  </div>
+  <div class="feed" style="margin-top:1rem;border:1px solid rgba(0,255,65,0.1);background:rgba(0,0,0,0.35);">
+    <div class="feed-hdr" style="padding:0.4rem 0.9rem;border-bottom:1px solid rgba(0,255,65,0.07);display:flex;justify-content:space-between;align-items:center;background:rgba(0,255,65,0.03);">
+      <div style="font-size:9px;color:#557755;letter-spacing:0.25em;text-transform:uppercase;">// live activity log</div>
+      <div style="display:flex;align-items:center;gap:0.4rem;font-size:9px;color:#00ff41;letter-spacing:0.2em;"><div class="feed-dot"></div>STREAMING</div>
+    </div>
+    <div class="feed-body" id="feedBody" style="max-height:112px;overflow:hidden;position:relative;"></div>
   </div>
 </div>
 
@@ -510,17 +522,7 @@ KEYFRAMES
       <div class="term-ttl">EPITAPH CLI — DEPLOYMENT LOG</div>
       <div class="term-live">● LIVE</div>
     </div>
-    <div class="term-body">
-      <span class="tl" style="animation-delay:0.2s"><span class="tp">root@epitaph:~# </span><span class="tc">epitaph connect --wallet 0x7f3a...9c2b</span></span>
-      <span class="tl" style="animation-delay:0.8s"><span class="to">→ Found: 4.2 ETH | 12,000 USDC | 3 NFTs</span></span>
-      <span class="tl" style="animation-delay:1.4s"><span class="tok">✓ Wallet connected.</span></span>
-      <span class="tl" style="animation-delay:2.0s"><span class="tp">root@epitaph:~# </span><span class="tc">epitaph will --trigger inactivity_180d</span></span>
-      <span class="tl" style="animation-delay:2.6s"><span class="to">→ Beneficiary: 0x4e1...b83f (100%)</span></span>
-      <span class="tl" style="animation-delay:3.2s"><span class="tp">root@epitaph:~# </span><span class="tc">epitaph deploy --sign</span></span>
-      <span class="tl" style="animation-delay:3.8s"><span class="tw">⚠ Irreversible. Confirm? [y/N]: y</span></span>
-      <span class="tl" style="animation-delay:4.4s"><span class="tok">✓ Will deployed. Block #21847293. Immutable. Eternal.</span></span>
-      <span class="tl" style="animation-delay:5.0s"><span class="tp">root@epitaph:~# </span><span class="tcur"></span></span>
-    </div>
+    <div class="term-body" id="termBody" style="min-height:220px;"></div>
   </div>
 </div>
 
@@ -652,7 +654,102 @@ KEYFRAMES
 <div class="toast" id="toast"></div>
 
 <script>
-// ── SCROLL OBSERVER ──────────────
+// ── TYPEWRITER TERMINAL ──────────
+const termLines = [
+  { type:'cmd',  text:'epitaph connect --wallet 0x7f3a...9c2b' },
+  { type:'out',  text:'→ Scanning assets on ETH, Base, SOL...' },
+  { type:'out',  text:'→ Found: 4.2 ETH | 12,000 USDC | 3 NFTs' },
+  { type:'ok',   text:'✓ Wallet connected.' },
+  { type:'cmd',  text:'epitaph will --trigger inactivity_180d' },
+  { type:'out',  text:'→ Beneficiary: 0x4e1...b83f (100%)' },
+  { type:'out',  text:'→ Final message: sealed (encrypted)' },
+  { type:'cmd',  text:'epitaph deploy --sign' },
+  { type:'warn', text:'⚠ Irreversible. Confirm? [y/N]: y' },
+  { type:'out',  text:'→ Compiling will to bytecode...' },
+  { type:'out',  text:'→ Submitting to Base network...' },
+  { type:'ok',   text:'✓ Will deployed. Block #21847293. Immutable. Eternal.' },
+  { type:'prompt', text:'' },
+];
+
+const colorMap = {
+  cmd:    '#ccffcc',
+  out:    '#557755',
+  ok:     '#00ff41',
+  warn:   '#ffb300',
+  prompt: '#00cc33',
+};
+
+function runTypewriter() {
+  const tb = document.getElementById('termBody');
+  if (!tb) return;
+  tb.innerHTML = '';
+  let lineIdx = 0;
+
+  function nextLine() {
+    if (lineIdx >= termLines.length) {
+      // Add blinking cursor at end
+      const cur = document.createElement('span');
+      cur.innerHTML = '<span class="tp">root@epitaph:~# </span><span class="tcur"></span>';
+      tb.appendChild(cur);
+      return;
+    }
+
+    const line = termLines[lineIdx++];
+    const row = document.createElement('div');
+    row.style.cssText = 'display:block;min-height:1.2em;';
+
+    if (line.type === 'cmd') {
+      // Prompt prefix appears instantly, then type the command
+      const prompt = document.createElement('span');
+      prompt.className = 'tp';
+      prompt.textContent = 'root@epitaph:~# ';
+      row.appendChild(prompt);
+
+      const cmdSpan = document.createElement('span');
+      cmdSpan.style.color = colorMap.cmd;
+      row.appendChild(cmdSpan);
+      tb.appendChild(row);
+
+      let i = 0;
+      const txt = line.text;
+      function typeChar() {
+        if (i < txt.length) {
+          cmdSpan.textContent += txt[i++];
+          setTimeout(typeChar, 28 + Math.random() * 20);
+        } else {
+          setTimeout(nextLine, 220);
+        }
+      }
+      setTimeout(typeChar, 120);
+    } else if (line.type === 'prompt') {
+      nextLine();
+    } else {
+      // Output lines appear instantly after small delay
+      const span = document.createElement('span');
+      span.style.color = colorMap[line.type] || colorMap.out;
+      span.style.paddingLeft = '1rem';
+      span.style.display = 'block';
+      span.textContent = line.text;
+      row.appendChild(span);
+      tb.appendChild(row);
+      setTimeout(nextLine, 180);
+    }
+  }
+
+  setTimeout(nextLine, 600);
+}
+
+// Start typewriter when terminal enters viewport
+const termObs = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) {
+    runTypewriter();
+    termObs.disconnect();
+  }
+}, { threshold: 0.3 });
+const termEl = document.getElementById('termBody');
+if (termEl) termObs.observe(termEl);
+
+
 const obs = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
 }, { threshold: 0.06 });
