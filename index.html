@@ -3,28 +3,26 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>EPITAPH // on-chain last will protocol</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100;0,300;0,400;0,700;1,300&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=VT323&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0a0e0a;
+  --bg: #080c08;
   --bg2: #0d120d;
   --green: #00ff41;
   --green-dim: #00c832;
   --green-faint: rgba(0,255,65,0.06);
-  --green-glow: rgba(0,255,65,0.15);
   --amber: #ffb300;
   --red: #ff3333;
-  --gray: #3a4a3a;
   --text: #b8ffb8;
-  --text-dim: #507050;
-  --text-faint: #2a3a2a;
-  --scanline: rgba(0,255,65,0.02);
+  --text-dim: #4a6a4a;
+  --text-faint: #243424;
+  --header-h: 76px;
 }
 
-- { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior: smooth; }
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
 
 body {
 background: var(–bg);
@@ -33,84 +31,34 @@ font-family: ‘JetBrains Mono’, monospace;
 font-size: 13px;
 line-height: 1.6;
 overflow-x: hidden;
-cursor: none;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
 }
 
-/* CUSTOM CURSOR */
-.cursor {
-width: 12px; height: 16px;
-background: var(–green);
-position: fixed;
-pointer-events: none;
-z-index: 99999;
-animation: blink 1s step-end infinite;
-mix-blend-mode: screen;
-}
-
-/* SCANLINES */
+/* SCANLINES - pointer-events none so they don’t block scroll */
 body::before {
 content: ‘’;
 position: fixed;
 inset: 0;
-background: repeating-linear-gradient(
-0deg,
-transparent,
-transparent 2px,
-var(–scanline) 2px,
-var(–scanline) 4px
-);
+background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,0.015) 2px, rgba(0,255,65,0.015) 4px);
 pointer-events: none;
-z-index: 9998;
+z-index: 9000;
 }
 
-/* CRT VIGNETTE */
-body::after {
-content: ‘’;
-position: fixed;
-inset: 0;
-background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.7) 100%);
-pointer-events: none;
-z-index: 9997;
-}
-
-/* BOOT SCREEN */
-#boot {
-position: fixed;
-inset: 0;
-background: var(–bg);
-z-index: 9996;
-display: flex;
-align-items: center;
-justify-content: center;
-flex-direction: column;
-gap: 0.5rem;
-transition: opacity 0.5s ease;
-}
-
-.boot-line {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 12px;
-color: var(–green-dim);
-opacity: 0;
-animation: bootLine 0.1s ease forwards;
-white-space: nowrap;
-overflow: hidden;
-}
-
-/* FIXED HEADER WRAPPER */
+/* ── FIXED HEADER ─────────────────────────── */
 .site-header {
 position: fixed;
 top: 0; left: 0; right: 0;
-z-index: 100;
-background: rgba(10,14,10,0.97);
+z-index: 500;
+background: rgba(8,12,8,0.97);
 border-bottom: 1px solid rgba(0,255,65,0.12);
-backdrop-filter: blur(6px);
+backdrop-filter: blur(8px);
+-webkit-backdrop-filter: blur(8px);
 }
 
-/* NAV */
 .nav {
-padding: 0 2rem;
 height: 48px;
+padding: 0 1.2rem;
 display: flex;
 justify-content: space-between;
 align-items: center;
@@ -119,1076 +67,606 @@ border-bottom: 1px solid rgba(0,255,65,0.07);
 
 .nav-logo {
 font-family: ‘VT323’, monospace;
-font-size: 1.8rem;
+font-size: 1.6rem;
 color: var(–green);
-text-shadow: 0 0 20px var(–green), 0 0 40px rgba(0,255,65,0.3);
-letter-spacing: 0.1em;
 text-decoration: none;
-animation: flicker 8s infinite;
+text-shadow: 0 0 16px rgba(0,255,65,0.4);
+letter-spacing: 0.05em;
 }
-
-.nav-logo::before { content: ’> ’; color: var(–text-dim); }
+.nav-logo::before { content: ’> ’; color: var(–text-dim); font-size: 1rem; }
 
 .nav-links {
 display: flex;
-gap: 0;
 list-style: none;
 border: 1px solid rgba(0,255,65,0.1);
 }
-
-.nav-links li a {
+.nav-links a {
 display: block;
-padding: 0.4rem 1.2rem;
-font-size: 11px;
-letter-spacing: 0.15em;
+padding: 0.35rem 0.9rem;
+font-size: 10px;
+letter-spacing: 0.1em;
 color: var(–text-dim);
 text-decoration: none;
-border-right: 1px solid rgba(0,255,65,0.1);
+border-right: 1px solid rgba(0,255,65,0.08);
 transition: all 0.2s;
 text-transform: uppercase;
 }
 .nav-links li:last-child a { border-right: none; }
-.nav-links li a:hover { background: var(–green-faint); color: var(–green); }
+.nav-links a:hover { background: var(–green-faint); color: var(–green); }
 
-@media (max-width: 640px) {
-.nav-links { display: none; }
-.nav { padding: 0.8rem 1rem; }
+@media (max-width: 520px) { .nav-links { display: none; } }
+
+/* TICKER — CSS animation only, no JS overflow issues */
+.ticker-wrap {
+height: 28px;
+overflow: hidden;
+display: flex;
+align-items: center;
+background: rgba(0,0,0,0.4);
 }
 
-/* HERO */
+.ticker-badge {
+flex-shrink: 0;
+height: 100%;
+display: flex;
+align-items: center;
+padding: 0 0.8rem;
+background: rgba(0,255,65,0.1);
+border-right: 1px solid rgba(0,255,65,0.2);
+font-size: 9px;
+color: var(–green);
+letter-spacing: 0.3em;
+white-space: nowrap;
+}
+
+.ticker-scroll {
+flex: 1;
+overflow: hidden;
+position: relative;
+height: 100%;
+}
+
+.ticker-track {
+display: flex;
+align-items: center;
+height: 100%;
+white-space: nowrap;
+animation: ticker-move 40s linear infinite;
+will-change: transform;
+}
+
+.ticker-track span {
+font-size: 10px;
+color: var(–text-dim);
+padding: 0 2rem;
+border-right: 1px solid rgba(0,255,65,0.06);
+flex-shrink: 0;
+}
+.ticker-track .hi { color: var(–green); }
+.ticker-track .lo { color: var(–red); }
+.ticker-track .warn { color: var(–amber); }
+
+@keyframes ticker-move {
+0%   { transform: translateX(0); }
+100% { transform: translateX(-50%); }
+}
+
+/* ── PAGE BODY ────────────────────────────── */
+.page { padding-top: var(–header-h); }
+
+/* ── HERO ─────────────────────────────────── */
 .hero {
-min-height: 100vh;
+min-height: calc(100vh - var(–header-h));
 display: flex;
 flex-direction: column;
 justify-content: center;
-padding: 7rem 2rem 3rem;
-max-width: 900px;
+padding: 3rem 1.5rem 3rem;
+max-width: 860px;
 margin: 0 auto;
-position: relative;
 }
 
 .hero-prompt {
+font-size: 11px;
 color: var(–text-dim);
-font-size: 12px;
 margin-bottom: 0.5rem;
-animation: fadeIn 0.5s ease 2.5s both;
+opacity: 0;
+animation: fadeUp 0.5s ease 0.3s both;
 }
-
 .hero-prompt::before { content: ’root@epitaph:~# ’; color: var(–green-dim); }
 
 .hero-ascii {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: clamp(7px, 1.5vw, 12px);
+font-size: clamp(7px, 2.2vw, 12px);
 color: var(–green);
 line-height: 1.2;
-text-shadow: 0 0 10px rgba(0,255,65,0.3);
-animation: fadeIn 0.5s ease 2.7s both;
+text-shadow: 0 0 8px rgba(0,255,65,0.25);
 white-space: pre;
 overflow-x: auto;
+opacity: 0;
+animation: fadeUp 0.5s ease 0.5s both;
 }
 
 .hero-tagline {
-margin-top: 2rem;
-font-size: 13px;
+margin-top: 1.8rem;
+font-size: 12px;
 color: var(–text-dim);
 border-left: 2px solid var(–green-dim);
 padding-left: 1rem;
-animation: fadeIn 0.5s ease 3s both;
+line-height: 1.8;
+opacity: 0;
+animation: fadeUp 0.5s ease 0.7s both;
 }
-
-.hero-tagline span { color: var(–green); }
+.hero-tagline strong { color: var(–text); }
 
 .hero-cta {
-margin-top: 2.5rem;
+margin-top: 2rem;
 display: flex;
-gap: 1rem;
+gap: 0.8rem;
 flex-wrap: wrap;
-animation: fadeIn 0.5s ease 3.2s both;
+opacity: 0;
+animation: fadeUp 0.5s ease 0.9s both;
 }
 
 .btn {
 font-family: ‘JetBrains Mono’, monospace;
-font-size: 12px;
+font-size: 11px;
 letter-spacing: 0.1em;
-padding: 0.7rem 1.8rem;
+padding: 0.65rem 1.4rem;
 border: 1px solid var(–green-dim);
 background: transparent;
 color: var(–green);
-cursor: none;
+cursor: pointer;
 text-decoration: none;
 transition: all 0.2s;
-position: relative;
 text-transform: uppercase;
 display: inline-block;
+white-space: nowrap;
 }
-
 .btn::before { content: ’[ ‘; }
-.btn::after { content: ’ ]’; }
+.btn::after  { content: ’ ]’; }
+.btn:hover   { background: var(–green-faint); box-shadow: 0 0 16px rgba(0,255,65,0.15); }
 
-.btn:hover {
-background: var(–green-faint);
-box-shadow: 0 0 20px rgba(0,255,65,0.2), inset 0 0 20px rgba(0,255,65,0.05);
-text-shadow: 0 0 8px var(–green);
-}
+.btn-red { border-color: rgba(255,51,51,0.5); color: var(–red); }
+.btn-red:hover { background: rgba(255,51,51,0.05); box-shadow: 0 0 16px rgba(255,51,51,0.15); }
 
-.btn-danger {
-border-color: var(–red);
-color: var(–red);
-}
-.btn-danger:hover { background: rgba(255,51,51,0.06); box-shadow: 0 0 20px rgba(255,51,51,0.2); text-shadow: 0 0 8px var(–red); }
-
+/* STATS */
 .hero-stats {
-margin-top: 3rem;
+margin-top: 2.5rem;
 display: grid;
-grid-template-columns: repeat(4, 1fr);
+grid-template-columns: 1fr 1fr;
 border: 1px solid rgba(0,255,65,0.1);
-animation: fadeIn 0.5s ease 3.4s both;
+opacity: 0;
+animation: fadeUp 0.5s ease 1.1s both;
 }
 
-@media (max-width: 500px) {
-.hero-stats { grid-template-columns: repeat(2, 1fr); }
-}
+@media (min-width: 480px) { .hero-stats { grid-template-columns: repeat(4,1fr); } }
 
 .hstat {
-padding: 1.2rem 1rem;
-border-right: 1px solid rgba(0,255,65,0.1);
+padding: 1.2rem 0.8rem;
 text-align: center;
+border-right: 1px solid rgba(0,255,65,0.08);
+border-bottom: 1px solid rgba(0,255,65,0.08);
 }
+.hstat:nth-child(2n) { border-right: none; }
+@media (min-width: 480px) {
+.hstat { border-bottom: none; }
+.hstat:nth-child(2n) { border-right: 1px solid rgba(0,255,65,0.08); }
 .hstat:last-child { border-right: none; }
+}
 
 .hstat-val {
 font-family: ‘VT323’, monospace;
-font-size: 2rem;
+font-size: 1.8rem;
 color: var(–green);
-text-shadow: 0 0 10px rgba(0,255,65,0.4);
+text-shadow: 0 0 8px rgba(0,255,65,0.35);
 display: block;
 line-height: 1;
+transition: text-shadow 0.3s;
 }
-
+.hstat-val.flash { text-shadow: 0 0 24px #00ff41, 0 0 48px rgba(0,255,65,0.4); }
 .hstat-key {
-font-size: 10px;
+font-size: 9px;
 color: var(–text-dim);
-letter-spacing: 0.2em;
+letter-spacing: 0.18em;
 text-transform: uppercase;
 margin-top: 0.3rem;
 }
 
-/* ACTIVITY LOG FEED */
+/* ACTIVITY FEED */
 .activity-feed {
-background: #060a06;
-border: 1px solid rgba(0,255,65,0.1);
-margin-top: 2rem;
-animation: fadeIn 0.5s ease 3.6s both;
+margin-top: 1.5rem;
+border: 1px solid rgba(0,255,65,0.08);
+background: rgba(0,0,0,0.3);
+opacity: 0;
+animation: fadeUp 0.5s ease 1.3s both;
 }
-
 .feed-header {
-background: rgba(0,255,65,0.04);
-border-bottom: 1px solid rgba(0,255,65,0.08);
 padding: 0.5rem 1rem;
+border-bottom: 1px solid rgba(0,255,65,0.06);
 display: flex;
 justify-content: space-between;
 align-items: center;
+background: rgba(0,255,65,0.03);
 }
+.feed-title { font-size: 9px; color: var(–text-dim); letter-spacing: 0.25em; text-transform: uppercase; }
+.feed-live  { display: flex; align-items: center; gap: 0.4rem; font-size: 9px; color: var(–green); letter-spacing: 0.2em; }
+.feed-dot   { width: 5px; height: 5px; border-radius: 50%; background: var(–green); box-shadow: 0 0 4px var(–green); animation: pulse 1.5s ease-in-out infinite; }
 
-.feed-title {
-font-size: 10px;
-color: var(–text-dim);
-letter-spacing: 0.25em;
-text-transform: uppercase;
-}
-
-.feed-live {
-display: flex;
-align-items: center;
-gap: 0.4rem;
-font-size: 9px;
-color: var(–green);
-letter-spacing: 0.2em;
-}
-
-.feed-dot {
-width: 6px; height: 6px;
-border-radius: 50%;
-background: var(–green);
-box-shadow: 0 0 6px var(–green);
-animation: pulse 1.5s ease-in-out infinite;
-}
-
-.feed-body {
-padding: 0.5rem 0;
-max-height: 130px;
-overflow: hidden;
-position: relative;
-}
-
+.feed-body  { max-height: 120px; overflow: hidden; position: relative; }
 .feed-body::after {
 content: ‘’;
 position: absolute;
-bottom: 0; left: 0; right: 0;
-height: 40px;
-background: linear-gradient(to bottom, transparent, #060a06);
+bottom: 0; left: 0; right: 0; height: 36px;
+background: linear-gradient(transparent, rgba(0,0,0,0.8));
 pointer-events: none;
 }
 
 .feed-row {
 display: flex;
 align-items: center;
-gap: 1rem;
-padding: 0.35rem 1rem;
-font-size: 11px;
+padding: 0.32rem 1rem;
 border-bottom: 1px solid rgba(0,255,65,0.03);
-animation: feedSlideIn 0.4s ease both;
-transition: background 0.2s;
+font-size: 10px;
+gap: 0.8rem;
+animation: slideDown 0.35s ease both;
 }
-
-.feed-row:hover { background: var(–green-faint); }
-
-.feed-time { color: var(–text-faint); min-width: 55px; font-size: 10px; }
-.feed-type { min-width: 80px; }
-.feed-type.deploy { color: var(–green); }
+.feed-time  { color: var(–text-faint); min-width: 48px; flex-shrink: 0; }
+.feed-type  { min-width: 72px; flex-shrink: 0; text-transform: uppercase; font-size: 9px; letter-spacing: 0.1em; }
+.feed-type.deploy  { color: var(–green); }
 .feed-type.trigger { color: var(–amber); }
-.feed-type.exec { color: #00bcd4; }
-.feed-type.msg { color: #ce93d8; }
-.feed-addr { color: var(–text-dim); flex: 1; }
-.feed-status { font-size: 10px; letter-spacing: 0.1em; }
-.feed-status.ok { color: var(–green); }
-.feed-status.warn { color: var(–amber); }
+.feed-type.exec    { color: #4dd; }
+.feed-type.msg     { color: #c9f; }
+.feed-addr  { color: var(–text-dim); flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.feed-ok    { color: var(–green); font-size: 9px; flex-shrink: 0; }
+.feed-warn  { color: var(–amber); font-size: 9px; flex-shrink: 0; }
 
-@keyframes feedSlideIn {
-from { opacity: 0; transform: translateY(-8px); }
-to   { opacity: 1; transform: translateY(0); }
-}
+@keyframes slideDown { from { opacity:0; transform: translateY(-6px); } to { opacity:1; transform: translateY(0); } }
 
-/* SECTION CONTAINER */
+/* ── SECTION ──────────────────────────────── */
 .section {
-max-width: 900px;
+max-width: 860px;
 margin: 0 auto;
-padding: 4rem 2rem;
+padding: 3.5rem 1.5rem;
 }
 
-/* SECTION HEADER */
-.sec-header {
-margin-bottom: 2rem;
-border-bottom: 1px solid rgba(0,255,65,0.1);
-padding-bottom: 1rem;
-}
-
-.sec-cmd {
-font-size: 11px;
+.sec-label {
+font-size: 9px;
 color: var(–text-dim);
+letter-spacing: 0.3em;
+text-transform: uppercase;
 margin-bottom: 0.3rem;
 }
-.sec-cmd::before { content: ’root@epitaph:~# ’; color: var(–green-dim); }
+.sec-label::before { content: ’root@epitaph:~# ’; color: var(–green-dim); }
 
 .sec-title {
 font-family: ‘VT323’, monospace;
-font-size: 2.2rem;
+font-size: clamp(1.6rem, 5vw, 2.2rem);
 color: var(–green);
-text-shadow: 0 0 15px rgba(0,255,65,0.3);
-letter-spacing: 0.05em;
+text-shadow: 0 0 12px rgba(0,255,65,0.2);
+margin-bottom: 0.5rem;
 }
 
-.sec-desc {
-font-size: 12px;
-color: var(–text-dim);
-margin-top: 0.5rem;
-max-width: 600px;
-}
+.sec-desc { font-size: 11px; color: var(–text-dim); max-width: 540px; line-height: 1.7; }
 
-/* PROCESS STEPS */
-.process-wrap {
+.sec-divider { border: none; border-top: 1px solid rgba(0,255,65,0.07); margin-bottom: 2rem; }
+
+/* ── HOW IT WORKS ─────────────────────────── */
+.steps { display: grid; gap: 1px; }
+
+.step {
 display: grid;
-gap: 0;
-}
-
-.process-step {
-display: grid;
-grid-template-columns: 60px 1fr;
-border: 1px solid rgba(0,255,65,0.08);
-border-bottom: none;
+grid-template-columns: 52px 1fr;
+border: 1px solid rgba(0,255,65,0.07);
 transition: background 0.2s;
 }
+.step:hover { background: var(–green-faint); }
+.step + .step { border-top: none; }
 
-.process-step:last-child { border-bottom: 1px solid rgba(0,255,65,0.08); }
-.process-step:hover { background: var(–green-faint); }
-
-.ps-num {
-border-right: 1px solid rgba(0,255,65,0.08);
+.step-num {
 display: flex;
 align-items: center;
 justify-content: center;
+border-right: 1px solid rgba(0,255,65,0.07);
 font-family: ‘VT323’, monospace;
-font-size: 2.5rem;
+font-size: 2rem;
 color: var(–text-faint);
-padding: 1.5rem;
+padding: 1.2rem 0;
 }
-
-.ps-content { padding: 1.5rem; }
-
-.ps-title {
-font-size: 12px;
+.step-body { padding: 1.2rem; }
+.step-title {
+font-size: 11px;
 color: var(–green);
 letter-spacing: 0.1em;
 text-transform: uppercase;
-margin-bottom: 0.5rem;
+margin-bottom: 0.4rem;
 }
-.ps-title::before { content: ’// ’; color: var(–text-dim); }
+.step-title::before { content: ’// ’; color: var(–text-dim); }
+.step-text { font-size: 11px; color: var(–text-dim); line-height: 1.7; }
 
-.ps-body {
-font-size: 12px;
-color: var(–text-dim);
-line-height: 1.7;
-}
-
-/* TERMINAL BLOCK */
+/* TERMINAL */
 .terminal {
-background: #060a06;
-border: 1px solid rgba(0,255,65,0.15);
-margin: 2rem 0;
-position: relative;
-box-shadow: 0 0 40px rgba(0,255,65,0.05);
+margin-top: 2rem;
+background: #040704;
+border: 1px solid rgba(0,255,65,0.12);
+box-shadow: 0 0 30px rgba(0,255,65,0.04);
 }
-
 .term-bar {
-background: rgba(0,255,65,0.06);
-border-bottom: 1px solid rgba(0,255,65,0.1);
 padding: 0.5rem 1rem;
+border-bottom: 1px solid rgba(0,255,65,0.08);
+background: rgba(0,255,65,0.04);
 display: flex;
 justify-content: space-between;
 align-items: center;
 }
-
-.term-title {
-font-size: 11px;
-color: var(–text-dim);
-letter-spacing: 0.2em;
-}
-
-.term-dots { display: flex; gap: 0.4rem; }
-.term-dot { width: 8px; height: 8px; border-radius: 50%; }
+.term-dots { display: flex; gap: 0.35rem; }
+.term-dot  { width: 7px; height: 7px; border-radius: 50%; }
 .term-dot:nth-child(1) { background: rgba(255,51,51,0.5); }
 .term-dot:nth-child(2) { background: rgba(255,179,0,0.5); }
 .term-dot:nth-child(3) { background: rgba(0,255,65,0.5); }
+.term-title { font-size: 9px; color: var(–text-dim); letter-spacing: 0.2em; }
+.term-live  { font-size: 9px; color: var(–green); letter-spacing: 0.15em; }
 
-.term-body {
-padding: 1.5rem;
-font-size: 12px;
-line-height: 2;
-}
-
+.term-body  { padding: 1.2rem; font-size: 11px; line-height: 2; overflow-x: auto; }
 .tl { display: block; opacity: 0; animation: fadeIn 0.3s ease forwards; }
-.tl-prompt { color: var(–green-dim); }
-.tl-cmd { color: var(–text); }
-.tl-out { color: var(–text-dim); padding-left: 1rem; }
+.tl-p  { color: var(–green-dim); }
+.tl-c  { color: var(–text); }
+.tl-o  { color: var(–text-dim); padding-left: 1rem; }
 .tl-ok { color: var(–green); padding-left: 1rem; }
-.tl-warn { color: var(–amber); padding-left: 1rem; }
-.tl-err { color: var(–red); padding-left: 1rem; }
-.tl-cursor { display: inline-block; width: 8px; height: 13px; background: var(–green); vertical-align: middle; animation: blink 1s step-end infinite; margin-left: 2px; }
+.tl-w  { color: var(–amber); padding-left: 1rem; }
+.tl-cur { display: inline-block; width: 7px; height: 12px; background: var(–green); vertical-align: middle; animation: blink 1s step-end infinite; }
 
-/* FEATURES TABLE */
-.feat-table {
-width: 100%;
-border-collapse: collapse;
-font-size: 12px;
-}
-
-.feat-table thead tr {
-border-bottom: 1px solid rgba(0,255,65,0.2);
-background: rgba(0,255,65,0.04);
-}
-
-.feat-table th {
-padding: 0.8rem 1rem;
-text-align: left;
-color: var(–green-dim);
-letter-spacing: 0.2em;
-font-size: 10px;
-text-transform: uppercase;
-font-weight: 400;
-}
-
-.feat-table td {
-padding: 0.9rem 1rem;
-color: var(–text-dim);
-border-bottom: 1px solid rgba(0,255,65,0.05);
-vertical-align: top;
-}
-
+/* ── FEATURES TABLE ───────────────────────── */
+.feat-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.feat-table thead tr { background: rgba(0,255,65,0.04); border-bottom: 1px solid rgba(0,255,65,0.15); }
+.feat-table th { padding: 0.7rem 0.8rem; text-align: left; color: var(–green-dim); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 400; }
+.feat-table td { padding: 0.8rem; color: var(–text-dim); border-bottom: 1px solid rgba(0,255,65,0.04); vertical-align: top; }
 .feat-table tr:hover td { background: var(–green-faint); }
-
-.feat-table td:first-child { color: var(–green); width: 30%; }
-.feat-table td:last-child { color: var(–text-faint); font-size: 11px; }
-
-.badge {
-display: inline-block;
-padding: 0.15rem 0.5rem;
-font-size: 9px;
-letter-spacing: 0.15em;
-border: 1px solid;
-text-transform: uppercase;
-}
-
+.feat-table td:first-child { color: var(–green); font-size: 10px; }
+.badge { display: inline-block; padding: 0.1rem 0.45rem; font-size: 8px; letter-spacing: 0.12em; border: 1px solid; text-transform: uppercase; }
 .badge-live { border-color: var(–green); color: var(–green); }
 .badge-soon { border-color: var(–amber); color: var(–amber); }
 
-/* FORM */
-.form-wrap {
-border: 1px solid rgba(0,255,65,0.12);
-background: #060a06;
-}
-
-.form-header {
-background: rgba(0,255,65,0.05);
-border-bottom: 1px solid rgba(0,255,65,0.1);
-padding: 1rem 1.5rem;
-display: flex;
-justify-content: space-between;
-align-items: center;
-flex-wrap: wrap;
-gap: 0.5rem;
-}
-
-.form-header-title {
-font-family: ‘VT323’, monospace;
-font-size: 1.4rem;
-color: var(–green);
-letter-spacing: 0.1em;
-}
-
-.form-body { padding: 2rem 1.5rem; }
-
-.form-row {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 1.5rem;
-margin-bottom: 1.5rem;
-}
-
-@media (max-width: 560px) {
-.form-row { grid-template-columns: 1fr; }
-.form-row.full-always { grid-template-columns: 1fr; }
-}
-
-.form-row.full { grid-template-columns: 1fr; }
-
-.fg { display: flex; flex-direction: column; gap: 0.4rem; }
-
-.fg label {
-font-size: 10px;
-color: var(–text-dim);
-letter-spacing: 0.2em;
-text-transform: uppercase;
-}
+/* ── CREATE WILL FORM ─────────────────────── */
+.form-wrap { border: 1px solid rgba(0,255,65,0.1); background: #040804; }
+.form-bar  { padding: 0.8rem 1.2rem; border-bottom: 1px solid rgba(0,255,65,0.08); background: rgba(0,255,65,0.04); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+.form-bar-title { font-family: ‘VT323’, monospace; font-size: 1.2rem; color: var(–green); letter-spacing: 0.1em; }
+.form-bar-step  { font-size: 9px; color: var(–text-dim); letter-spacing: 0.15em; }
+.form-body { padding: 1.5rem 1.2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+@media (max-width: 480px) { .form-body { grid-template-columns: 1fr; } }
+.fg      { display: flex; flex-direction: column; gap: 0.35rem; }
+.fg.full { grid-column: 1 / -1; }
+.fg label { font-size: 9px; color: var(–text-dim); letter-spacing: 0.2em; text-transform: uppercase; }
 .fg label::before { content: ’# ’; color: var(–text-faint); }
-
 .fg input, .fg select, .fg textarea {
 background: rgba(0,0,0,0.5);
 border: 1px solid rgba(0,255,65,0.1);
 color: var(–text);
-padding: 0.7rem 0.9rem;
+padding: 0.65rem 0.8rem;
 font-family: ‘JetBrains Mono’, monospace;
-font-size: 12px;
+font-size: 11px;
 outline: none;
-transition: border-color 0.2s, box-shadow 0.2s;
+transition: border-color 0.2s;
 width: 100%;
+-webkit-appearance: none;
+border-radius: 0;
 }
+.fg input:focus, .fg select:focus, .fg textarea:focus { border-color: rgba(0,255,65,0.35); }
+.fg input::placeholder, .fg textarea::placeholder { color: var(–text-faint); font-style: italic; }
+.fg select option { background: #080c08; }
+.fg textarea { resize: vertical; min-height: 80px; }
 
-.fg input:focus, .fg select:focus, .fg textarea:focus {
-border-color: rgba(0,255,65,0.4);
-box-shadow: 0 0 10px rgba(0,255,65,0.08);
-}
-
-.fg input::placeholder, .fg textarea::placeholder {
-color: var(–text-faint);
-font-style: italic;
-}
-
-.fg select option { background: #0a0e0a; }
-
-.fg textarea { resize: vertical; min-height: 90px; }
-
-/* TRIGGER SELECTOR */
-.trigger-grid {
-display: grid;
-grid-template-columns: repeat(3, 1fr);
-gap: 1px;
-background: rgba(0,255,65,0.08);
-border: 1px solid rgba(0,255,65,0.08);
-}
-
-@media (max-width: 500px) {
-.trigger-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-.trig {
-background: var(–bg);
-padding: 0.8rem;
-text-align: center;
-cursor: none;
-font-size: 10px;
-letter-spacing: 0.15em;
-color: var(–text-dim);
-text-transform: uppercase;
-transition: all 0.15s;
-user-select: none;
-}
-
-.trig:hover { background: var(–green-faint); color: var(–green); }
-.trig.on { background: rgba(0,255,65,0.08); color: var(–green); border-color: var(–green); }
+.trig-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: rgba(0,255,65,0.06); border: 1px solid rgba(0,255,65,0.06); margin-top: 0.4rem; }
+@media (max-width: 380px) { .trig-grid { grid-template-columns: repeat(2,1fr); } }
+.trig { background: var(–bg); padding: 0.65rem 0.4rem; text-align: center; font-size: 9px; letter-spacing: 0.1em; color: var(–text-dim); text-transform: uppercase; cursor: pointer; transition: all 0.15s; user-select: none; }
+.trig:hover { background: var(–green-faint); color: var(–text); }
+.trig.on { background: rgba(0,255,65,0.07); color: var(–green); }
 .trig.on::before { content: ’[✓] ’; }
 .trig:not(.on)::before { content: ’[ ] ’; }
 
-/* WALLET ROW */
-.wallet-row {
-display: flex;
-align-items: center;
-gap: 1rem;
-padding: 1rem 1.5rem;
-border-top: 1px solid rgba(0,255,65,0.08);
-flex-wrap: wrap;
-}
+.wallet-row { padding: 0.8rem 1.2rem; border-top: 1px solid rgba(0,255,65,0.07); display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.wstatus { display: flex; align-items: center; gap: 0.5rem; font-size: 10px; color: var(–text-dim); }
+.wdot { width: 6px; height: 6px; border-radius: 50%; background: var(–red); box-shadow: 0 0 4px var(–red); animation: pulse 2s ease-in-out infinite; }
+.wdot.live { background: var(–green); box-shadow: 0 0 4px var(–green); animation: none; }
 
-.wstatus {
-display: flex;
-align-items: center;
-gap: 0.5rem;
-font-size: 11px;
-color: var(–text-dim);
-}
-
-.wdot {
-width: 7px; height: 7px;
-border-radius: 50%;
-background: var(–red);
-box-shadow: 0 0 6px var(–red);
-animation: pulse 2s ease-in-out infinite;
-}
-
-.wdot.live { background: var(–green); box-shadow: 0 0 6px var(–green); animation: none; }
-
-/* CHAIN SECTION */
-.chain-list {
-display: flex;
-flex-wrap: wrap;
-gap: 1px;
-background: rgba(0,255,65,0.06);
-margin-top: 1.5rem;
-}
-
-.chain-item {
-background: var(–bg);
-padding: 1rem 2rem;
-font-size: 11px;
-letter-spacing: 0.15em;
-color: var(–text-dim);
-text-transform: uppercase;
-transition: all 0.2s;
-cursor: default;
-}
-
+/* ── CHAINS ───────────────────────────────── */
+.chain-grid { display: flex; flex-wrap: wrap; gap: 1px; background: rgba(0,255,65,0.05); margin-top: 1.5rem; }
+.chain-item { background: var(–bg); padding: 0.8rem 1.5rem; font-size: 10px; letter-spacing: 0.15em; color: var(–text-dim); text-transform: uppercase; transition: all 0.2s; white-space: nowrap; }
 .chain-item:hover { background: var(–green-faint); color: var(–green); }
-.chain-item.live::after { content: ’ [LIVE]’; color: var(–green); font-size: 9px; }
-.chain-item.soon::after { content: ’ [SOON]’; color: var(–amber); font-size: 9px; }
+.chain-item.live::after { content: ’ [LIVE]’; color: var(–green); font-size: 8px; }
+.chain-item.soon::after { content: ’ [SOON]’; color: var(–amber); font-size: 8px; }
 
-/* LOG TICKER */
-.log-ticker {
-background: rgba(0,0,0,0.5);
-overflow: hidden;
-white-space: nowrap;
-position: relative;
-height: 28px;
-display: flex;
-align-items: stretch;
-}
+/* ── X / TWITTER ──────────────────────────── */
+.x-section { background: #040804; border-top: 1px solid rgba(0,255,65,0.07); border-bottom: 1px solid rgba(0,255,65,0.07); }
+.x-inner { max-width: 860px; margin: 0 auto; padding: 3rem 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
+@media (max-width: 600px) { .x-inner { grid-template-columns: 1fr; gap: 2rem; } }
 
-.ticker-label {
-flex-shrink: 0;
-background: rgba(0,255,65,0.12);
-border-right: 1px solid rgba(0,255,65,0.2);
-color: var(–green);
-font-size: 9px;
-letter-spacing: 0.3em;
-display: flex;
-align-items: center;
-padding: 0 1rem;
-z-index: 2;
-font-family: ‘JetBrains Mono’, monospace;
-}
-
-.ticker-track {
-flex: 1;
-overflow: hidden;
-position: relative;
-}
-
-.ticker-inner {
-display: inline-flex;
-align-items: center;
-height: 28px;
-white-space: nowrap;
-font-size: 11px;
-color: var(–text-dim);
-position: absolute;
-top: 0; left: 0;
-will-change: transform;
-}
-
-.ticker-inner span { margin: 0 2.5rem; }
-.ticker-inner .t-hi { color: var(–green); }
-.ticker-inner .t-lo { color: var(–red); }
-
-/* FAQ / ACCORDION */
-.faq-item {
-border-bottom: 1px solid rgba(0,255,65,0.06);
-}
-
-.faq-q {
-padding: 1.1rem 0;
-cursor: none;
-display: flex;
-justify-content: space-between;
-align-items: center;
-font-size: 12px;
-color: var(–text-dim);
-transition: color 0.2s;
-user-select: none;
-}
-
-.faq-q::before { content: ’> ’; color: var(–green-dim); }
-.faq-q:hover { color: var(–text); }
-
-.faq-toggle {
-font-family: ‘VT323’, monospace;
-font-size: 1.5rem;
-color: var(–text-faint);
-min-width: 20px;
-text-align: center;
-}
-
-.faq-a {
-max-height: 0;
-overflow: hidden;
-transition: max-height 0.3s ease;
-font-size: 12px;
-color: var(–text-faint);
-padding-left: 1rem;
-border-left: 1px solid rgba(0,255,65,0.15);
-margin-left: 0.5rem;
-line-height: 1.8;
-}
-
-/* FOOTER */
-footer {
-background: #060a06;
-border-top: 1px solid rgba(0,255,65,0.1);
-padding: 3rem 2rem;
-max-width: 900px;
-margin: 0 auto;
-}
-
-.footer-top {
-display: grid;
-grid-template-columns: 1fr 1fr 1fr;
-gap: 2rem;
-margin-bottom: 2rem;
-padding-bottom: 2rem;
-border-bottom: 1px solid rgba(0,255,65,0.06);
-}
-
-@media (max-width: 600px) {
-.footer-top { grid-template-columns: 1fr; }
-}
-
-.footer-col-title {
-font-size: 10px;
-color: var(–green-dim);
-letter-spacing: 0.3em;
-text-transform: uppercase;
-margin-bottom: 1rem;
-}
-
-.footer-col a {
-display: block;
-font-size: 11px;
-color: var(–text-dim);
-text-decoration: none;
-margin-bottom: 0.5rem;
-transition: color 0.2s;
-}
-.footer-col a::before { content: ’- ’; }
-.footer-col a:hover { color: var(–green); }
-
-.footer-bottom {
-display: flex;
-justify-content: space-between;
-align-items: center;
-flex-wrap: wrap;
-gap: 1rem;
-}
-
-.footer-logo {
-font-family: ‘VT323’, monospace;
-font-size: 2rem;
-color: var(–text-faint);
-text-shadow: none;
-}
-
-.footer-copy {
-font-size: 10px;
-color: var(–text-faint);
-letter-spacing: 0.2em;
-}
-
-/* X / TWITTER SECTION */
-.x-section {
-background: #060a06;
-border-top: 1px solid rgba(0,255,65,0.08);
-border-bottom: 1px solid rgba(0,255,65,0.08);
-padding: 3rem 2rem;
-}
-
-.x-inner {
-max-width: 900px;
-margin: 0 auto;
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 3rem;
-align-items: start;
-}
-
-@media (max-width: 640px) {
-.x-inner { grid-template-columns: 1fr; gap: 2rem; }
-}
-
-.x-profile {
-display: flex;
-flex-direction: column;
-gap: 1rem;
-}
-
-.x-handle-row {
-display: flex;
-align-items: center;
-gap: 1rem;
-}
-
-.x-avatar {
-width: 52px; height: 52px;
-background: rgba(0,255,65,0.06);
-border: 1px solid rgba(0,255,65,0.2);
-display: flex;
-align-items: center;
-justify-content: center;
-font-family: ‘VT323’, monospace;
-font-size: 1.6rem;
-color: var(–green);
-flex-shrink: 0;
-}
-
-.x-name { font-size: 13px; color: var(–text); }
-.x-handle {
-font-size: 11px;
-color: var(–green);
-letter-spacing: 0.05em;
-}
+.x-avatar-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.x-avatar { width: 48px; height: 48px; border: 1px solid rgba(0,255,65,0.2); background: rgba(0,255,65,0.05); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+.x-name   { font-size: 12px; color: var(–text); }
+.x-handle { font-size: 10px; color: var(–green); }
 .x-handle::before { content: ‘@’; }
 
-.x-bio {
-font-size: 11px;
-color: var(–text-dim);
-line-height: 1.7;
-border-left: 2px solid rgba(0,255,65,0.15);
-padding-left: 0.8rem;
-}
+.x-bio { font-size: 11px; color: var(–text-dim); line-height: 1.7; border-left: 2px solid rgba(0,255,65,0.12); padding-left: 0.8rem; margin-bottom: 1rem; }
 
-.x-stats-row {
-display: flex;
-gap: 2rem;
-}
+.x-stats { display: flex; gap: 1.5rem; margin-bottom: 1rem; }
+.x-sval  { font-family: ‘VT323’, monospace; font-size: 1.4rem; color: var(–green); display: block; line-height: 1; }
+.x-skey  { font-size: 9px; color: var(–text-faint); letter-spacing: 0.15em; text-transform: uppercase; }
 
-.x-stat { text-align: left; }
-.x-stat-val {
-font-family: ‘VT323’, monospace;
-font-size: 1.4rem;
-color: var(–green);
-display: block;
-line-height: 1;
-}
-.x-stat-key {
-font-size: 9px;
-color: var(–text-faint);
-letter-spacing: 0.2em;
-text-transform: uppercase;
-}
+.x-follow { display: inline-flex; align-items: center; gap: 0.4rem; border: 1px solid rgba(0,255,65,0.25); color: var(–green); font-family: ‘JetBrains Mono’, monospace; font-size: 10px; letter-spacing: 0.1em; padding: 0.55rem 1.2rem; text-decoration: none; transition: all 0.2s; text-transform: uppercase; background: transparent; }
+.x-follow:hover { background: var(–green-faint); box-shadow: 0 0 12px rgba(0,255,65,0.12); }
+.x-follow::before { content: ’[ ‘; }
+.x-follow::after  { content: ’ ]’; }
 
-.x-follow-btn {
-display: inline-flex;
-align-items: center;
-gap: 0.5rem;
-background: transparent;
-border: 1px solid rgba(0,255,65,0.3);
-color: var(–green);
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 11px;
-letter-spacing: 0.1em;
-padding: 0.6rem 1.4rem;
-text-decoration: none;
-transition: all 0.2s;
-text-transform: uppercase;
-cursor: none;
-}
-.x-follow-btn:hover { background: var(–green-faint); box-shadow: 0 0 16px rgba(0,255,65,0.15); }
-.x-follow-btn::before { content: ’[ ‘; }
-.x-follow-btn::after  { content: ’ ]’; }
+.x-col-label { font-size: 9px; color: var(–text-dim); letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 0.8rem; }
+.x-col-label::before { content: ’// ’; color: var(–text-faint); }
 
-/* TWEET FEED */
-.x-feed { display: flex; flex-direction: column; gap: 1px; }
-
-.x-feed-header {
-font-size: 10px;
-color: var(–text-dim);
-letter-spacing: 0.25em;
-text-transform: uppercase;
-margin-bottom: 0.8rem;
-}
-.x-feed-header::before { content: ’// ’; color: var(–text-faint); }
-
-.tweet {
-background: rgba(0,0,0,0.4);
-border: 1px solid rgba(0,255,65,0.06);
-padding: 1rem;
-transition: border-color 0.2s;
-margin-bottom: 1px;
-}
-.tweet:hover { border-color: rgba(0,255,65,0.15); background: var(–green-faint); }
-
-.tweet-meta {
-display: flex;
-justify-content: space-between;
-margin-bottom: 0.5rem;
-}
-.tweet-who { font-size: 10px; color: var(–green); }
-.tweet-who::before { content: ’@EpitaphAI · ’; color: var(–text-faint); }
-.tweet-time { font-size: 9px; color: var(–text-faint); }
-
-.tweet-body {
-font-size: 11px;
-color: var(–text-dim);
-line-height: 1.6;
-}
-.tweet-body .hi { color: var(–text); }
-.tweet-body .tag { color: var(–green); }
-
-.tweet-actions {
-display: flex;
-gap: 1.5rem;
-margin-top: 0.7rem;
-}
-.tweet-act {
-font-size: 9px;
-color: var(–text-faint);
-letter-spacing: 0.1em;
-cursor: none;
-transition: color 0.2s;
-}
+.tweet { border: 1px solid rgba(0,255,65,0.06); padding: 1rem; margin-bottom: 1px; transition: border-color 0.2s; background: rgba(0,0,0,0.2); }
+.tweet:hover { border-color: rgba(0,255,65,0.14); background: var(–green-faint); }
+.tweet-meta { display: flex; justify-content: space-between; margin-bottom: 0.4rem; }
+.tweet-handle { font-size: 9px; color: var(–green); }
+.tweet-time   { font-size: 9px; color: var(–text-faint); }
+.tweet-text   { font-size: 10px; color: var(–text-dim); line-height: 1.65; }
+.tweet-text .hi  { color: var(–text); }
+.tweet-text .tag { color: var(–green); }
+.tweet-acts { display: flex; gap: 1.2rem; margin-top: 0.6rem; }
+.tweet-act  { font-size: 9px; color: var(–text-faint); letter-spacing: 0.08em; cursor: pointer; transition: color 0.2s; }
 .tweet-act:hover { color: var(–green); }
 
-/* TOAST */
-.toast {
-position: fixed;
-bottom: 2rem; right: 2rem;
-background: #060a06;
-border: 1px solid rgba(0,255,65,0.3);
-padding: 0.8rem 1.5rem;
-font-size: 11px;
-color: var(–green);
-letter-spacing: 0.1em;
-z-index: 9000;
-transform: translateY(60px);
-opacity: 0;
-transition: all 0.3s ease;
-max-width: 320px;
-}
+/* ── FAQ ──────────────────────────────────── */
+.faq-item { border-bottom: 1px solid rgba(0,255,65,0.05); }
+.faq-q { padding: 1rem 0; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(–text-dim); cursor: pointer; user-select: none; transition: color 0.2s; }
+.faq-q::before { content: ’> ’; color: var(–green-dim); }
+.faq-q:hover { color: var(–text); }
+.faq-toggle { font-family: ‘VT323’, monospace; font-size: 1.4rem; color: var(–text-faint); min-width: 18px; text-align: center; flex-shrink: 0; }
+.faq-a { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; font-size: 11px; color: var(–text-faint); padding: 0 0 0 1rem; border-left: 1px solid rgba(0,255,65,0.12); margin-left: 0.5rem; line-height: 1.8; }
 
+/* ── FOOTER ───────────────────────────────── */
+footer { border-top: 1px solid rgba(0,255,65,0.08); padding: 2.5rem 1.5rem; max-width: 860px; margin: 0 auto; }
+.footer-cols { display: grid; grid-template-columns: repeat(3,1fr); gap: 2rem; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid rgba(0,255,65,0.05); }
+@media (max-width: 480px) { .footer-cols { grid-template-columns: 1fr 1fr; } }
+.footer-col-title { font-size: 9px; color: var(–green-dim); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 0.8rem; }
+.footer-col a { display: block; font-size: 10px; color: var(–text-dim); text-decoration: none; margin-bottom: 0.4rem; transition: color 0.2s; }
+.footer-col a::before { content: ’- ’; }
+.footer-col a:hover { color: var(–green); }
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem; }
+.footer-logo { font-family: ‘VT323’, monospace; font-size: 1.8rem; color: var(–text-faint); }
+.footer-copy { font-size: 9px; color: var(–text-faint); letter-spacing: 0.15em; }
+
+/* ── TOAST ────────────────────────────────── */
+.toast { position: fixed; bottom: 1.5rem; right: 1.5rem; left: 1.5rem; max-width: 360px; margin: 0 auto; background: #040804; border: 1px solid rgba(0,255,65,0.25); padding: 0.7rem 1.2rem; font-size: 10px; color: var(–green); letter-spacing: 0.08em; z-index: 9000; transform: translateY(80px); opacity: 0; transition: all 0.3s ease; }
 .toast::before { content: ’[OK] ’; }
 .toast.err::before { content: ’[ERR] ’; color: var(–red); }
 .toast.show { transform: translateY(0); opacity: 1; }
 
-/* SCROLL FADE */
-.sf {
-opacity: 0;
-transform: translateY(16px);
-transition: opacity 0.6s ease, transform 0.6s ease;
-}
+/* ── SCROLL FADE ──────────────────────────── */
+.sf { opacity: 0; transform: translateY(14px); transition: opacity 0.55s ease, transform 0.55s ease; }
 .sf.in { opacity: 1; transform: translateY(0); }
 
-/* ANIMATIONS */
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-@keyframes fadeIn { from{opacity:0} to{opacity:1} }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-@keyframes flicker {
-0%,100%{opacity:1} 41%{opacity:1} 42%{opacity:0.6}
-43%{opacity:1} 76%{opacity:1} 77%{opacity:0.4} 78%{opacity:1}
-}
-@keyframes bootFade { to{opacity:0; pointer-events:none} }
+/* ── ANIMATIONS ───────────────────────────── */
+@keyframes blink   { 0%,100%{opacity:1} 50%{opacity:0} }
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+@keyframes fadeUp  { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@keyframes flicker { 0%,100%{opacity:1} 42%{opacity:1} 43%{opacity:0.5} 44%{opacity:1} 77%{opacity:1} 78%{opacity:0.4} 79%{opacity:1} }
 </style>
 
 </head>
 <body>
 
-<!-- CURSOR -->
-
-<div class="cursor" id="cursor"></div>
-
-<!-- BOOT SCREEN -->
-
-<div id="boot">
-  <div class="boot-line" style="animation-delay:0.1s">EPITAPH OS v1.0.0 — initializing...</div>
-  <div class="boot-line" style="animation-delay:0.4s">Loading on-chain will protocol...</div>
-  <div class="boot-line" style="animation-delay:0.7s">Connecting to Base, ETH, SOL nodes...</div>
-  <div class="boot-line" style="animation-delay:1.0s">Verifying smart contract integrity...</div>
-  <div class="boot-line" style="animation-delay:1.3s">Mounting dead man's switch module...</div>
-  <div class="boot-line" style="animation-delay:1.6s; color: var(--green);">System ready. Welcome to EPITAPH.</div>
-</div>
-
-<!-- FIXED HEADER -->
+<!-- ── FIXED HEADER ─────────────────────── -->
 
 <div class="site-header">
-  <!-- NAV -->
   <nav class="nav">
     <a href="#" class="nav-logo">EPITAPH</a>
     <ul class="nav-links">
-      <li><a href="#how">./how-it-works</a></li>
-      <li><a href="#features">./features</a></li>
-      <li><a href="#create">./create-will</a></li>
-      <li><a href="#faq">./faq</a></li>
+      <li><a href="#how">./how</a></li>
+      <li><a href="#features">./modules</a></li>
+      <li><a href="#create">./create</a></li>
+      <li><a href="#social">./x</a></li>
     </ul>
   </nav>
-
-  <!-- LIVE TICKER -->
-
-  <div class="log-ticker">
-    <div class="ticker-label">LIVE</div>
-    <div class="ticker-track">
-      <div class="ticker-inner" id="tickerInner">
-        <span>WILL #1247 DEPLOYED — 0x7f3...a9c2 <span class="t-hi">✓ SEALED</span></span>
-        <span>TRIGGER FIRED: wallet_0x4e1...b83f <span class="t-lo">INACTIVE 180d</span></span>
-        <span>TRANSFER EXECUTED — 4.2 ETH → 0x9a2...c11d <span class="t-hi">✓ CONFIRMED</span></span>
-        <span>NEW WILL: 0xb31...d77e — INACTIVITY 90d — <span class="t-hi">LIVE</span></span>
-        <span>MESSAGE DELIVERED on-chain: block #21847293 <span class="t-hi">✓</span></span>
-        <span>WILL #1249 DEPLOYED — 0xaa1...f33b <span class="t-hi">✓ SEALED</span></span>
-        <span>INACTIVITY CHECK: 0x8c2...e91a — 147/180 days <span class="t-lo">MONITORING</span></span>
-        <span>TRANSFER EXECUTED — 0.85 ETH + 3,200 USDC → 0x3d7...b22f <span class="t-hi">✓ CONFIRMED</span></span>
+  <div class="ticker-wrap">
+    <div class="ticker-badge">LIVE</div>
+    <div class="ticker-scroll">
+      <div class="ticker-track" id="tickerTrack">
+        <span>WILL #1249 DEPLOYED — 0x7f3...a9c2 <span class="hi">✓ SEALED</span></span>
+        <span>TRIGGER FIRED: 0x4e1...b83f <span class="lo">INACTIVE 180d</span></span>
+        <span>TRANSFER EXECUTED — 4.2 ETH → 0x9a2...c11d <span class="hi">✓ CONFIRMED</span></span>
+        <span>NEW WILL: 0xb31...d77e — INACTIVITY 90d <span class="hi">LIVE</span></span>
+        <span>MSG DELIVERED on-chain: block #21847293 <span class="hi">✓</span></span>
+        <span>INACTIVITY CHECK: 0x8c2...e91a — 147/180d <span class="warn">MONITORING</span></span>
+        <span>WILL #1249 DEPLOYED — 0x7f3...a9c2 <span class="hi">✓ SEALED</span></span>
+        <span>TRIGGER FIRED: 0x4e1...b83f <span class="lo">INACTIVE 180d</span></span>
+        <span>TRANSFER EXECUTED — 4.2 ETH → 0x9a2...c11d <span class="hi">✓ CONFIRMED</span></span>
+        <span>NEW WILL: 0xb31...d77e — INACTIVITY 90d <span class="hi">LIVE</span></span>
+        <span>MSG DELIVERED on-chain: block #21847293 <span class="hi">✓</span></span>
+        <span>INACTIVITY CHECK: 0x8c2...e91a — 147/180d <span class="warn">MONITORING</span></span>
       </div>
     </div>
   </div>
+</div>
+
+<!-- ── PAGE ─────────────────────────────── -->
+
+<div class="page">
+
 <!-- HERO -->
+
 <div class="hero">
   <div class="hero-prompt">cat /etc/epitaph/README</div>
-  <pre class="hero-ascii">
- ___  ____  ____  ____  __   ____  _  _ 
+  <pre class="hero-ascii"> ___  ____  ____  ____  __   ____  _  _
 (  _)(  _ \(_  _)(_  _)/ _\ (  _ \/ )( \
  ) _) ) __/  )(    )( /    \ ) __/) __ (
-(___)(__)   (__)  (__)\_/\_/(__)  \_)(_/
-  </pre>
+(___)(__)   (__)  (__)\_/\_/(__)  \_)(_/</pre>
   <div class="hero-tagline">
-    <span>Your on-chain last will protocol.</span><br>
+    <strong>Your on-chain last will protocol.</strong><br>
     No lawyers. No notaries. No intermediaries.<br>
     Your instructions — executed forever on-chain.
   </div>
   <div class="hero-cta">
     <a href="#create" class="btn">Write Your Will</a>
-    <a href="#how" class="btn btn-danger">Learn More</a>
+    <a href="#how" class="btn btn-red">Learn More</a>
   </div>
   <div class="hero-stats">
-    <div class="hstat">
-      <span class="hstat-val" id="cnt-wills">—</span>
-      <div class="hstat-key">Wills Deployed</div>
-    </div>
-    <div class="hstat">
-      <span class="hstat-val" id="cnt-eth">—</span>
-      <div class="hstat-key">ETH Protected</div>
-    </div>
-    <div class="hstat">
-      <span class="hstat-val" id="cnt-chains">—</span>
-      <div class="hstat-key">Chains Active</div>
-    </div>
-    <div class="hstat">
-      <span class="hstat-val" id="cnt-exec">—</span>
-      <div class="hstat-key">Wills Executed</div>
-    </div>
+    <div class="hstat"><span class="hstat-val" id="s-wills">—</span><div class="hstat-key">Wills Deployed</div></div>
+    <div class="hstat"><span class="hstat-val" id="s-eth">—</span><div class="hstat-key">ETH Protected</div></div>
+    <div class="hstat"><span class="hstat-val" id="s-chains">4</span><div class="hstat-key">Chains Active</div></div>
+    <div class="hstat"><span class="hstat-val" id="s-exec">—</span><div class="hstat-key">Executed</div></div>
   </div>
-
-  <!-- LIVE ACTIVITY FEED -->
-
   <div class="activity-feed">
     <div class="feed-header">
       <div class="feed-title">// live activity log</div>
       <div class="feed-live"><div class="feed-dot"></div>STREAMING</div>
     </div>
-    <div class="feed-body" id="feedBody">
-      <!-- injected by JS -->
-    </div>
+    <div class="feed-body" id="feedBody"></div>
   </div>
 </div>
+
 <!-- HOW IT WORKS -->
+
 <div class="section" id="how">
-  <div class="sec-header sf">
-    <div class="sec-cmd">cat /docs/how-it-works.md</div>
-    <div class="sec-title">HOW IT WORKS</div>
-    <div class="sec-desc">Three commands. Eternal execution. Your will runs autonomously on-chain forever.</div>
-  </div>
-
-  <div class="process-wrap sf">
-    <div class="process-step">
-      <div class="ps-num">01</div>
-      <div class="ps-content">
-        <div class="ps-title">Connect Your Wallet</div>
-        <div class="ps-body">Link your wallet. Epitaph reads your on-chain assets across all supported chains. Non-custodial. We never hold your keys.</div>
+  <div class="sec-label sf">cat /docs/how-it-works.md</div>
+  <div class="sec-title sf">HOW IT WORKS</div>
+  <div class="sec-desc sf">Three commands. Eternal execution.</div>
+  <hr class="sec-divider">
+  <div class="steps sf">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-body">
+        <div class="step-title">Connect Your Wallet</div>
+        <div class="step-text">Link your wallet. Epitaph reads your on-chain assets across all supported chains. Non-custodial. We never hold your keys.</div>
       </div>
     </div>
-    <div class="process-step">
-      <div class="ps-num">02</div>
-      <div class="ps-content">
-        <div class="ps-title">Write Your Instructions</div>
-        <div class="ps-body">Set triggers, beneficiaries, distribution rules, and a final message. Everything is compiled into an immutable on-chain will.</div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-body">
+        <div class="step-title">Write Your Instructions</div>
+        <div class="step-text">Set triggers, beneficiaries, distribution rules, and a sealed final message. Everything compiled into an immutable on-chain will.</div>
       </div>
     </div>
-    <div class="process-step">
-      <div class="ps-num">03</div>
-      <div class="ps-content">
-        <div class="ps-title">Deploy & Rest</div>
-        <div class="ps-body">Your will is sealed on-chain. When trigger conditions are met — inactivity, date, or price — Epitaph executes automatically. Forever.</div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-body">
+        <div class="step-title">Deploy & Rest</div>
+        <div class="step-text">Sealed on-chain. When trigger fires — inactivity, date, or price — Epitaph executes automatically. Forever.</div>
       </div>
     </div>
   </div>
-
   <div class="terminal sf">
     <div class="term-bar">
-      <div class="term-dots">
-        <div class="term-dot"></div>
-        <div class="term-dot"></div>
-        <div class="term-dot"></div>
-      </div>
+      <div class="term-dots"><div class="term-dot"></div><div class="term-dot"></div><div class="term-dot"></div></div>
       <div class="term-title">EPITAPH CLI — DEPLOYMENT LOG</div>
-      <div style="font-size:10px;color:var(--green);letter-spacing:0.2em;">● LIVE</div>
+      <div class="term-live">● LIVE</div>
     </div>
-    <div class="term-body" id="termBody">
-      <span class="tl" style="animation-delay:0.2s"><span class="tl-prompt">root@epitaph:~# </span><span class="tl-cmd">epitaph connect --wallet 0x7f3a...9c2b</span></span>
-      <span class="tl" style="animation-delay:0.6s"><span class="tl-out">→ Scanning assets on ETH, Base, SOL...</span></span>
-      <span class="tl" style="animation-delay:1.0s"><span class="tl-out">→ Found: 4.2 ETH | 12,000 USDC | 3 NFTs</span></span>
-      <span class="tl" style="animation-delay:1.4s"><span class="tl-ok">✓ Wallet connected.</span></span>
-      <span class="tl" style="animation-delay:1.8s"><span class="tl-prompt">root@epitaph:~# </span><span class="tl-cmd">epitaph will --trigger inactivity_180d</span></span>
-      <span class="tl" style="animation-delay:2.2s"><span class="tl-out">→ Trigger: wallet inactive for 180 days</span></span>
-      <span class="tl" style="animation-delay:2.6s"><span class="tl-out">→ Beneficiary[0]: 0x4e1...b83f (60%)</span></span>
-      <span class="tl" style="animation-delay:3.0s"><span class="tl-out">→ Beneficiary[1]: 0x9a2...c11d (40%)</span></span>
-      <span class="tl" style="animation-delay:3.4s"><span class="tl-out">→ Final message: sealed (encrypted)</span></span>
-      <span class="tl" style="animation-delay:3.8s"><span class="tl-prompt">root@epitaph:~# </span><span class="tl-cmd">epitaph deploy --sign</span></span>
-      <span class="tl" style="animation-delay:4.2s"><span class="tl-warn">⚠ This action is irreversible. Confirm? [y/N]: y</span></span>
-      <span class="tl" style="animation-delay:4.6s"><span class="tl-out">→ Compiling will to bytecode...</span></span>
-      <span class="tl" style="animation-delay:5.0s"><span class="tl-out">→ Submitting to Base network...</span></span>
-      <span class="tl" style="animation-delay:5.4s"><span class="tl-ok">✓ Will deployed. Block #21847293. Immutable. Eternal.</span></span>
-      <span class="tl" style="animation-delay:5.8s"><span class="tl-prompt">root@epitaph:~# </span><span class="tl-cursor"></span></span>
+    <div class="term-body">
+      <span class="tl" style="animation-delay:0.2s"><span class="tl-p">root@epitaph:~# </span><span class="tl-c">epitaph connect --wallet 0x7f3a...9c2b</span></span>
+      <span class="tl" style="animation-delay:0.7s"><span class="tl-o">→ Found: 4.2 ETH | 12,000 USDC | 3 NFTs</span></span>
+      <span class="tl" style="animation-delay:1.2s"><span class="tl-ok">✓ Wallet connected.</span></span>
+      <span class="tl" style="animation-delay:1.7s"><span class="tl-p">root@epitaph:~# </span><span class="tl-c">epitaph will --trigger inactivity_180d --beneficiary 0x4e1...b83f</span></span>
+      <span class="tl" style="animation-delay:2.3s"><span class="tl-o">→ Trigger: inactivity 180d | Beneficiary: 0x4e1...b83f (100%)</span></span>
+      <span class="tl" style="animation-delay:2.8s"><span class="tl-p">root@epitaph:~# </span><span class="tl-c">epitaph deploy --sign</span></span>
+      <span class="tl" style="animation-delay:3.3s"><span class="tl-w">⚠ Irreversible. Confirm? [y/N]: y</span></span>
+      <span class="tl" style="animation-delay:3.9s"><span class="tl-ok">✓ Will deployed. Block #21847293. Immutable. Eternal.</span></span>
+      <span class="tl" style="animation-delay:4.4s"><span class="tl-p">root@epitaph:~# </span><span class="tl-cur"></span></span>
     </div>
   </div>
 </div>
@@ -1196,71 +674,22 @@ transition: opacity 0.6s ease, transform 0.6s ease;
 <!-- FEATURES -->
 
 <div class="section" id="features">
-  <div class="sec-header sf">
-    <div class="sec-cmd">ls -la /modules/</div>
-    <div class="sec-title">MODULES</div>
-    <div class="sec-desc">Every feature your final instructions need.</div>
-  </div>
-
+  <div class="sec-label sf">ls -la /modules/</div>
+  <div class="sec-title sf">MODULES</div>
+  <div class="sec-desc sf">Every feature your final instructions need.</div>
+  <hr class="sec-divider">
   <table class="feat-table sf">
-    <thead>
-      <tr>
-        <th>Module</th>
-        <th>Description</th>
-        <th>Status</th>
-      </tr>
-    </thead>
+    <thead><tr><th>Module</th><th>Description</th><th>Status</th></tr></thead>
     <tbody>
-      <tr>
-        <td>dead_mans_switch</td>
-        <td>Execute will if wallet stays inactive for N days. Configurable period. Multi-sig confirmation option.</td>
-        <td><span class="badge badge-live">LIVE</span></td>
-      </tr>
-      <tr>
-        <td>scheduled_transfer</td>
-        <td>Set a future date for automatic asset transfer. Token unlock. Time-locked instructions.</td>
-        <td><span class="badge badge-live">LIVE</span></td>
-      </tr>
-      <tr>
-        <td>final_message</td>
-        <td>Seal an encrypted message on-chain. Delivered to beneficiaries upon trigger. Permanent. Immutable.</td>
-        <td><span class="badge badge-live">LIVE</span></td>
-      </tr>
-      <tr>
-        <td>token_burn</td>
-        <td>Instruct Epitaph to burn your tokens upon death. Reduce supply. Leave a deflationary legacy.</td>
-        <td><span class="badge badge-live">LIVE</span></td>
-      </tr>
-      <tr>
-        <td>price_trigger</td>
-        <td>Execute when ETH hits $X or BTC crosses $Y. Conditional logic baked into your will.</td>
-        <td><span class="badge badge-live">LIVE</span></td>
-      </tr>
-      <tr>
-        <td>multisig_confirm</td>
-        <td>Require 2-of-3 trusted contacts to confirm before execution. Protection against false triggers.</td>
-        <td><span class="badge badge-live">LIVE</span></td>
-      </tr>
-      <tr>
-        <td>dao_donation</td>
-        <td>Direct your assets to a DAO, protocol, or public good. Your wealth contributes beyond yourself.</td>
-        <td><span class="badge badge-live">LIVE</span></td>
-      </tr>
-      <tr>
-        <td>nft_transfer</td>
-        <td>Include NFTs in your will. Specify per-token beneficiaries. Covers ERC-721 and ERC-1155.</td>
-        <td><span class="badge badge-live">LIVE</span></td>
-      </tr>
-      <tr>
-        <td>cross_chain_exec</td>
-        <td>Execute will across ETH, Base, Solana, Polygon simultaneously. Multi-chain asset coverage.</td>
-        <td><span class="badge badge-soon">SOON</span></td>
-      </tr>
-      <tr>
-        <td>zk_identity</td>
-        <td>Zero-knowledge proof of identity verification for beneficiary authentication.</td>
-        <td><span class="badge badge-soon">SOON</span></td>
-      </tr>
+      <tr><td>dead_mans_switch</td><td>Execute will if wallet inactive for N days. Multi-sig confirmation option.</td><td><span class="badge badge-live">LIVE</span></td></tr>
+      <tr><td>scheduled_transfer</td><td>Future-date automatic asset transfer. Time-locked instructions.</td><td><span class="badge badge-live">LIVE</span></td></tr>
+      <tr><td>final_message</td><td>Encrypted on-chain message. Delivered to beneficiaries upon trigger.</td><td><span class="badge badge-live">LIVE</span></td></tr>
+      <tr><td>token_burn</td><td>Burn tokens upon death. Reduce supply. Leave a deflationary legacy.</td><td><span class="badge badge-live">LIVE</span></td></tr>
+      <tr><td>price_trigger</td><td>Execute when ETH hits $X or BTC crosses $Y. Conditional logic.</td><td><span class="badge badge-live">LIVE</span></td></tr>
+      <tr><td>multisig_confirm</td><td>2-of-3 trusted contacts confirm before execution. Anti-false-trigger.</td><td><span class="badge badge-live">LIVE</span></td></tr>
+      <tr><td>dao_donation</td><td>Direct assets to a DAO or public good. Your wealth beyond yourself.</td><td><span class="badge badge-live">LIVE</span></td></tr>
+      <tr><td>cross_chain_exec</td><td>Execute across ETH, Base, SOL, Polygon simultaneously.</td><td><span class="badge badge-soon">SOON</span></td></tr>
+      <tr><td>zk_identity</td><td>Zero-knowledge proof beneficiary authentication.</td><td><span class="badge badge-soon">SOON</span></td></tr>
     </tbody>
   </table>
 </div>
@@ -1268,129 +697,64 @@ transition: opacity 0.6s ease, transform 0.6s ease;
 <!-- CREATE WILL -->
 
 <div class="section" id="create">
-  <div class="sec-header sf">
-    <div class="sec-cmd">epitaph will --new --interactive</div>
-    <div class="sec-title">CREATE WILL</div>
-    <div class="sec-desc">Deploy your on-chain testament. Non-custodial. Immutable.</div>
-  </div>
-
+  <div class="sec-label sf">epitaph will --new --interactive</div>
+  <div class="sec-title sf">CREATE WILL</div>
+  <div class="sec-desc sf">Deploy your on-chain testament. Non-custodial. Immutable.</div>
+  <hr class="sec-divider">
   <div class="form-wrap sf">
-    <div class="form-header">
-      <div class="form-header-title">// TESTAMENT CONFIGURATION</div>
-      <div style="font-size:10px;color:var(--text-dim);letter-spacing:0.15em;">STEP 1 / 3 — CONNECT & CONFIGURE</div>
+    <div class="form-bar">
+      <div class="form-bar-title">// TESTAMENT CONFIG</div>
+      <div class="form-bar-step">STEP 1 / 3</div>
     </div>
-
-```
-<div class="form-body">
-  <div class="form-row">
-    <div class="fg">
-      <label>Alias / Handle</label>
-      <input type="text" placeholder="anonymous, satoshi, 0x...">
-    </div>
-    <div class="fg">
-      <label>Will Title</label>
-      <input type="text" placeholder="The Last Testament of...">
-    </div>
-  </div>
-
-  <div class="form-row full" style="margin-bottom:1rem;">
-    <div class="fg">
-      <label>Trigger Condition</label>
-      <div class="trigger-grid" style="margin-top:0.4rem;">
-        <div class="trig on" onclick="selTrig(this)">Inactivity</div>
-        <div class="trig" onclick="selTrig(this)">Date</div>
-        <div class="trig" onclick="selTrig(this)">Price Target</div>
-        <div class="trig" onclick="selTrig(this)">Multi-Sig</div>
-        <div class="trig" onclick="selTrig(this)">On-Chain Event</div>
-        <div class="trig" onclick="selTrig(this)">Combo</div>
+    <div class="form-body">
+      <div class="fg"><label>Alias / Handle</label><input type="text" placeholder="anonymous, satoshi..."></div>
+      <div class="fg"><label>Will Title</label><input type="text" placeholder="The Last Testament of..."></div>
+      <div class="fg full">
+        <label>Trigger Condition</label>
+        <div class="trig-grid">
+          <div class="trig on" onclick="selTrig(this)">Inactivity</div>
+          <div class="trig" onclick="selTrig(this)">Date</div>
+          <div class="trig" onclick="selTrig(this)">Price Target</div>
+          <div class="trig" onclick="selTrig(this)">Multi-Sig</div>
+          <div class="trig" onclick="selTrig(this)">On-Chain Event</div>
+          <div class="trig" onclick="selTrig(this)">Combo</div>
+        </div>
       </div>
+      <div class="fg">
+        <label>Inactivity Period</label>
+        <select><option>30 days</option><option selected>90 days</option><option>180 days</option><option>365 days</option></select>
+      </div>
+      <div class="fg">
+        <label>Chain</label>
+        <select><option>Base</option><option>Ethereum</option><option>Solana</option><option>Polygon</option><option>Multi-chain</option></select>
+      </div>
+      <div class="fg full"><label>Beneficiary Wallet(s)</label><input type="text" placeholder="0x... or multiple wallets separated by comma"></div>
+      <div class="fg">
+        <label>Distribution</label>
+        <select><option>Equal Split</option><option>Percentage</option><option>Burn All</option><option>DAO Donation</option></select>
+      </div>
+      <div class="fg">
+        <label>On Trigger</label>
+        <select><option>Transfer Assets</option><option>Burn Tokens</option><option>DAO Donate</option><option>Transfer + Message</option><option>All</option></select>
+      </div>
+      <div class="fg full"><label>Final Message (sealed on-chain)</label><textarea placeholder="Write what you want inscribed permanently on-chain. Encrypted until trigger fires..."></textarea></div>
     </div>
-  </div>
-
-  <div class="form-row">
-    <div class="fg">
-      <label>Inactivity Period</label>
-      <select>
-        <option>30 days</option>
-        <option selected>90 days</option>
-        <option>180 days</option>
-        <option>365 days</option>
-        <option>Custom...</option>
-      </select>
+    <div class="wallet-row">
+      <button class="btn" id="walletBtn" onclick="connectWallet(this)">Connect Wallet</button>
+      <div class="wstatus"><div class="wdot" id="wdot"></div><span id="waddr">NOT CONNECTED</span></div>
+      <div style="flex:1"></div>
+      <button class="btn" onclick="deployWill()">Deploy Will</button>
     </div>
-    <div class="fg">
-      <label>Execution Chain</label>
-      <select>
-        <option>Base</option>
-        <option>Ethereum</option>
-        <option>Solana</option>
-        <option>Polygon</option>
-        <option>Multi-chain</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="form-row full">
-    <div class="fg">
-      <label>Beneficiary Wallet(s)</label>
-      <input type="text" placeholder="0x... or multiple wallets separated by comma">
-    </div>
-  </div>
-
-  <div class="form-row">
-    <div class="fg">
-      <label>Distribution Mode</label>
-      <select>
-        <option>Equal Split</option>
-        <option>Percentage Based</option>
-        <option>Burn All</option>
-        <option>DAO Donation</option>
-        <option>Custom</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label>On Trigger Action</label>
-      <select>
-        <option>Transfer Assets</option>
-        <option>Burn Tokens</option>
-        <option>Donate to DAO</option>
-        <option>Transfer + Message</option>
-        <option>All modules</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="form-row full">
-    <div class="fg">
-      <label>Final Message (sealed on-chain)</label>
-      <textarea placeholder="Write what you want inscribed permanently on-chain. Encrypted until trigger fires. Delivered to your beneficiaries upon execution..."></textarea>
-    </div>
-  </div>
-</div>
-
-<div class="wallet-row">
-  <button class="btn" onclick="connectWallet(this)" style="padding:0.5rem 1.2rem; font-size:11px;" id="walletBtn">Connect Wallet</button>
-  <div class="wstatus">
-    <div class="wdot" id="wdot"></div>
-    <span id="waddr">NOT CONNECTED</span>
-  </div>
-  <div style="flex:1"></div>
-  <button class="btn" onclick="deployWill()" style="padding:0.5rem 1.2rem; font-size:11px;">Deploy Will</button>
-</div>
-```
-
   </div>
 </div>
 
 <!-- CHAINS -->
 
 <div class="section" id="chains">
-  <div class="sec-header sf">
-    <div class="sec-cmd">epitaph chains --list</div>
-    <div class="sec-title">SUPPORTED CHAINS</div>
-    <div class="sec-desc">Death does not respect blockchain boundaries. Neither does Epitaph.</div>
-  </div>
-  <div class="chain-list sf">
+  <div class="sec-label sf">epitaph chains --list</div>
+  <div class="sec-title sf">CHAINS</div>
+  <hr class="sec-divider">
+  <div class="chain-grid sf">
     <div class="chain-item live">Ethereum</div>
     <div class="chain-item live">Base</div>
     <div class="chain-item live">Solana</div>
@@ -1402,141 +766,64 @@ transition: opacity 0.6s ease, transform 0.6s ease;
   </div>
 </div>
 
+<!-- X / SOCIAL -->
+
+<div class="x-section" id="social">
+  <div class="x-inner">
+    <div class="sf">
+      <div class="x-col-label">follow on x</div>
+      <div class="x-avatar-row">
+        <div class="x-avatar">⚰</div>
+        <div><div class="x-name">Epitaph Protocol</div><div class="x-handle">EpitaphAI</div></div>
+      </div>
+      <div class="x-bio">On-chain last will protocol. Your final instructions, executed forever on-chain. No lawyers. No intermediaries.<br><br><span style="color:var(--green)">$EPITAPH</span> · Base · ETH · SOL</div>
+      <div class="x-stats">
+        <div><span class="x-sval" id="xfol">4,821</span><div class="x-skey">Followers</div></div>
+        <div><span class="x-sval">247</span><div class="x-skey">Following</div></div>
+        <div><span class="x-sval">1.2K</span><div class="x-skey">Posts</div></div>
+      </div>
+      <a href="https://x.com/EpitaphAI" target="_blank" class="x-follow">Follow @EpitaphAI</a>
+    </div>
+    <div class="sf">
+      <div class="x-col-label">recent posts</div>
+      <div class="tweet">
+        <div class="tweet-meta"><span class="tweet-handle">EpitaphAI</span><span class="tweet-time">just now · pinned</span></div>
+        <div class="tweet-text">Will #1,249 just deployed. Wallet sealed their final instructions on-chain. Trigger: inactivity 180d.<br><br>This is what <span class="tag">#DeFi</span> inheritance looks like. No lawyer. No paperwork. <span class="tag">#Epitaph</span></div>
+        <div class="tweet-acts"><span class="tweet-act">↺ 142</span><span class="tweet-act">♡ 891</span><span class="tweet-act">↗ Share</span></div>
+      </div>
+      <div class="tweet">
+        <div class="tweet-meta"><span class="tweet-handle">EpitaphAI</span><span class="tweet-time">2h ago</span></div>
+        <div class="tweet-text"><span class="hi">3,843 ETH</span> now protected by Epitaph wills. Real crypto inheritance infrastructure. Every will immutable. Every execution automatic. <span class="tag">#onchain</span></div>
+        <div class="tweet-acts"><span class="tweet-act">↺ 67</span><span class="tweet-act">♡ 430</span><span class="tweet-act">↗ Share</span></div>
+      </div>
+      <div class="tweet">
+        <div class="tweet-meta"><span class="tweet-handle">EpitaphAI</span><span class="tweet-time">6h ago</span></div>
+        <div class="tweet-text"><span class="hi">$140B in BTC alone</span> will be permanently lost when its holders die.<br><br>Epitaph exists to change that. <span class="tag">#Epitaph</span> <span class="tag">#Base</span></div>
+        <div class="tweet-acts"><span class="tweet-act">↺ 203</span><span class="tweet-act">♡ 1.4K</span><span class="tweet-act">↗ Share</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- FAQ -->
 
 <div class="section" id="faq">
-  <div class="sec-header sf">
-    <div class="sec-cmd">cat /docs/faq.md</div>
-    <div class="sec-title">FAQ</div>
-  </div>
-
+  <div class="sec-label sf">cat /docs/faq.md</div>
+  <div class="sec-title sf">FAQ</div>
+  <hr class="sec-divider">
   <div class="sf">
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Is Epitaph non-custodial?<span class="faq-toggle">+</span></div>
-      <div class="faq-a">Yes. Epitaph never holds your assets. Smart contracts execute autonomously. You maintain full control of your wallet until trigger conditions are met.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">What happens if I'm still alive after the trigger?<span class="faq-toggle">+</span></div>
-      <div class="faq-a">You can cancel or update your will at any time before it executes. Simply send a transaction from your wallet to reset the inactivity timer. You remain in full control.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Can my will be changed after deployment?<span class="faq-toggle">+</span></div>
-      <div class="faq-a">Yes — but only by you, the wallet owner. You can update beneficiaries, trigger conditions, or revoke the will entirely. Once the trigger fires and execution begins, it becomes immutable.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Is there a fee?<span class="faq-toggle">+</span></div>
-      <div class="faq-a">Deploying your will costs only gas fees. Epitaph takes a small protocol fee (0.5%) only upon successful execution. No subscriptions. No upfront costs.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Is the final message private?<span class="faq-toggle">+</span></div>
-      <div class="faq-a">Yes. Your final message is encrypted on-chain and can only be decrypted by your designated beneficiaries after the trigger fires. Nobody else — including Epitaph — can read it.</div>
-    </div>
-  </div>
-</div>
-
-<!-- X / TWITTER SECTION -->
-
-<div class="x-section">
-  <div class="x-inner">
-
-```
-<!-- LEFT: Profile -->
-<div class="x-profile sf">
-  <div class="x-feed-header">// follow on x</div>
-  <div class="x-handle-row">
-    <div class="x-avatar">⚰</div>
-    <div>
-      <div class="x-name">Epitaph Protocol</div>
-      <div class="x-handle">EpitaphAI</div>
-    </div>
-  </div>
-  <div class="x-bio">
-    On-chain last will protocol. Your final instructions, executed forever on-chain. No lawyers. No intermediaries. Deploy your will today — free forever.
-    <br><br>
-    <span style="color:var(--green)">$EPITAPH</span> · Base · ETH · SOL
-  </div>
-  <div class="x-stats-row">
-    <div class="x-stat">
-      <span class="x-stat-val" id="x-followers">—</span>
-      <div class="x-stat-key">Followers</div>
-    </div>
-    <div class="x-stat">
-      <span class="x-stat-val">247</span>
-      <div class="x-stat-key">Following</div>
-    </div>
-    <div class="x-stat">
-      <span class="x-stat-val">1.2K</span>
-      <div class="x-stat-key">Posts</div>
-    </div>
-  </div>
-  <a href="https://x.com/EpitaphAI" target="_blank" class="x-follow-btn">Follow @EpitaphAI</a>
-</div>
-
-<!-- RIGHT: Tweets -->
-<div class="sf">
-  <div class="x-feed-header">// recent posts</div>
-  <div class="x-feed">
-
-    <div class="tweet">
-      <div class="tweet-meta">
-        <span class="tweet-who">just now</span>
-        <span class="tweet-time">pinned</span>
-      </div>
-      <div class="tweet-body">
-        <span class="hi">Will #1,249 just deployed.</span> Wallet 0x7f3a...9c2b sealed their final instructions on-chain. Trigger: inactivity 180d. Beneficiary: 2 wallets.<br><br>
-        This is what <span class="tag">#DeFi</span> inheritance looks like. No lawyer. No paperwork. Just code. <span class="tag">#Epitaph</span>
-      </div>
-      <div class="tweet-actions">
-        <span class="tweet-act">↺ 142</span>
-        <span class="tweet-act">♡ 891</span>
-        <span class="tweet-act">↗ Share</span>
-      </div>
-    </div>
-
-    <div class="tweet">
-      <div class="tweet-meta">
-        <span class="tweet-who">2h ago</span>
-        <span class="tweet-time"></span>
-      </div>
-      <div class="tweet-body">
-        3,843 ETH now protected by Epitaph wills.<br><br>
-        That's <span class="hi">real crypto inheritance infrastructure</span>, not vaporware. Every will is immutable. Every execution is automatic. Every beneficiary is guaranteed. <span class="tag">#onchain</span>
-      </div>
-      <div class="tweet-actions">
-        <span class="tweet-act">↺ 67</span>
-        <span class="tweet-act">♡ 430</span>
-        <span class="tweet-act">↗ Share</span>
-      </div>
-    </div>
-
-    <div class="tweet">
-      <div class="tweet-meta">
-        <span class="tweet-who">6h ago</span>
-        <span class="tweet-time"></span>
-      </div>
-      <div class="tweet-body">
-        Most crypto will be permanently lost when its holders die.<br><br>
-        <span class="hi">$140B in BTC alone</span> — gone. Inaccessible. Forever.<br><br>
-        Epitaph exists to change that. <span class="tag">#Epitaph</span> <span class="tag">#Base</span>
-      </div>
-      <div class="tweet-actions">
-        <span class="tweet-act">↺ 203</span>
-        <span class="tweet-act">♡ 1.4K</span>
-        <span class="tweet-act">↗ Share</span>
-      </div>
-    </div>
-
-  </div>
-</div>
-```
-
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is Epitaph non-custodial?<span class="faq-toggle">+</span></div><div class="faq-a">Yes. Epitaph never holds your assets. Smart contracts execute autonomously. You maintain full control until trigger conditions are met.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What if I'm still alive after the trigger?<span class="faq-toggle">+</span></div><div class="faq-a">You can cancel or update your will anytime before execution. Simply send a transaction to reset the inactivity timer.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can my will be changed after deployment?<span class="faq-toggle">+</span></div><div class="faq-a">Yes — only by you, the wallet owner. Update beneficiaries, trigger conditions, or revoke entirely. Once execution begins, it becomes immutable.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is there a fee?<span class="faq-toggle">+</span></div><div class="faq-a">Only gas fees to deploy. Epitaph takes 0.5% only upon successful execution. No subscriptions. No upfront costs.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is the final message private?<span class="faq-toggle">+</span></div><div class="faq-a">Yes. Encrypted on-chain, decryptable only by your beneficiaries after the trigger fires. Nobody else can read it.</div></div>
   </div>
 </div>
 
 <!-- FOOTER -->
 
 <footer>
-  <div class="footer-top">
+  <div class="footer-cols">
     <div class="footer-col">
       <div class="footer-col-title">Protocol</div>
       <a href="#">Documentation</a>
@@ -1553,7 +840,7 @@ transition: opacity 0.6s ease, transform 0.6s ease;
     </div>
     <div class="footer-col">
       <div class="footer-col-title">Community</div>
-      <a href="https://x.com/EpitaphAI" target="_blank">Twitter / X @EpitaphAI</a>
+      <a href="https://x.com/EpitaphAI" target="_blank">X @EpitaphAI</a>
       <a href="#">Telegram</a>
       <a href="#">Discord</a>
       <a href="#">Farcaster</a>
@@ -1565,243 +852,135 @@ transition: opacity 0.6s ease, transform 0.6s ease;
   </div>
 </footer>
 
-<!-- TOAST -->
+</div><!-- .page -->
 
 <div class="toast" id="toast"></div>
 
 <script>
-// BOOT SCREEN
-setTimeout(() => {
-  const boot = document.getElementById('boot');
-  boot.style.opacity = '0';
-  boot.style.pointerEvents = 'none';
-  setTimeout(() => boot.remove(), 500);
-}, 2200);
-
-// CURSOR
-const cur = document.getElementById('cursor');
-document.addEventListener('mousemove', e => {
-  cur.style.left = e.clientX + 'px';
-  cur.style.top = e.clientY + 'px';
-});
-
-// SCROLL OBSERVER
+// ── SCROLL OBSERVER ──────────────────────
 const obs = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
-}, { threshold: 0.08 });
+}, { threshold: 0.06 });
 document.querySelectorAll('.sf').forEach(el => obs.observe(el));
 
-// ── TICKER (JS-driven, perfectly smooth) ──────────────────
-window.addEventListener('load', function() {
-  const inner = document.getElementById('tickerInner');
-  if (!inner) return;
-  // Duplicate content so loop is seamless
-  inner.innerHTML += inner.innerHTML;
-  let x = 0;
-  const speed = 0.4;
-  function tick() {
-    x -= speed;
-    const halfW = inner.scrollWidth / 2;
-    if (Math.abs(x) >= halfW) x = 0;
-    inner.style.transform = `translateX(${x}px)`;
-    requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
-});
-
-// ── LIVE ACTIVITY FEED ────────────────────────────────────
-(function() {
-  const feed = document.getElementById('feedBody');
-  if (!feed) return;
-
-  const types = [
-    { label: 'DEPLOYED',  cls: 'deploy', statuses: ['✓ SEALED', '✓ LIVE'] },
-    { label: 'TRIGGER',   cls: 'trigger',statuses: ['⚠ INACTIVE 90d', '⚠ INACTIVE 180d'] },
-    { label: 'EXECUTED',  cls: 'exec',   statuses: ['✓ CONFIRMED', '✓ COMPLETE'] },
-    { label: 'MSG SENT',  cls: 'msg',    statuses: ['✓ DELIVERED', '✓ ON-CHAIN'] },
-  ];
-
-  function rndAddr() {
-    const h = '0123456789abcdef';
-    const p = () => [...Array(4)].map(() => h[Math.floor(Math.random()*16)]).join('');
-    return '0x' + p() + '...' + p();
-  }
-
-  function rndTime() {
-    const s = Math.floor(Math.random() * 59);
-    return 'just now';
-  }
-
-  // Seed initial rows
-  const seedEvents = [
-    { type: types[0], addr: '0x7f3a...9c2b', status: '✓ SEALED',    t: '2s ago' },
-    { type: types[2], addr: '0x4e1b...b83f', status: '✓ CONFIRMED', t: '18s ago' },
-    { type: types[1], addr: '0x8c2d...e91a', status: '⚠ INACTIVE 147d', t: '41s ago' },
-    { type: types[3], addr: '0x3d7e...b22f', status: '✓ DELIVERED', t: '1m ago' },
-    { type: types[0], addr: '0xaa1f...f33b', status: '✓ LIVE',      t: '2m ago' },
-  ];
-
-  function addRow(ev, prepend = true) {
-    const row = document.createElement('div');
-    row.className = 'feed-row';
-    const isOk = ev.status.startsWith('✓');
-    row.innerHTML = `
-      <span class="feed-time">${ev.t}</span>
-      <span class="feed-type ${ev.type.cls}">${ev.type.label}</span>
-      <span class="feed-addr">${ev.addr}</span>
-      <span class="feed-status ${isOk ? 'ok' : 'warn'}">${ev.status}</span>`;
-    if (prepend) {
-      feed.insertBefore(row, feed.firstChild);
-      // Remove oldest if too many
-      const rows = feed.querySelectorAll('.feed-row');
-      if (rows.length > 8) rows[rows.length - 1].remove();
-    } else {
-      feed.appendChild(row);
-    }
-  }
-
-  // Seed
-  seedEvents.forEach(ev => addRow(ev, false));
-
-  // Stream new events every 3-6 seconds
-  function streamNext() {
-    const t = types[Math.floor(Math.random() * types.length)];
-    const statuses = t.statuses;
-    addRow({
-      type: t,
-      addr: rndAddr(),
-      status: statuses[Math.floor(Math.random() * statuses.length)],
-      t: 'just now'
-    }, true);
-    setTimeout(streamNext, 3000 + Math.random() * 3000);
-  }
-  setTimeout(streamNext, 4000);
-})();
-
-
-// Realistic base values
-const stats = {
-  wills:  { base: 1247, el: 'cnt-wills',  fmt: v => v.toLocaleString(),        delta: () => Math.random() < 0.04 ? 1 : 0 },
-  eth:    { base: 3841, el: 'cnt-eth',    fmt: v => v.toFixed(1) + ' ETH',     delta: () => (Math.random() * 0.4 - 0.1) },
-  chains: { base: 4,    el: 'cnt-chains', fmt: v => v.toFixed(0),              delta: () => 0 },
-  exec:   { base: 89,   el: 'cnt-exec',   fmt: v => v.toLocaleString(),        delta: () => Math.random() < 0.015 ? 1 : 0 },
+// ── LIVE STATS ───────────────────────────
+const statsData = {
+  wills:  { id:'s-wills',  val:1249, fmt: v => v.toLocaleString(),       tick: () => Math.random()<0.04 ? 1 : 0 },
+  eth:    { id:'s-eth',    val:3843, fmt: v => v.toFixed(1)+' ETH',      tick: () => parseFloat((Math.random()*0.6-0.1).toFixed(1)) },
+  exec:   { id:'s-exec',   val:89,   fmt: v => v.toLocaleString(),       tick: () => Math.random()<0.015 ? 1 : 0 },
 };
 
-// Animate from 0 to base on load
-function animCount(key) {
-  const s = stats[key];
-  const el = document.getElementById(s.el);
+// count-up on load
+Object.values(statsData).forEach(s => {
+  const el = document.getElementById(s.id);
   if (!el) return;
-  const target = s.base;
-  const dur = 1800;
-  const startTime = performance.now();
+  const target = s.val;
+  const dur = 1600;
+  const start = performance.now();
   function frame(now) {
-    const progress = Math.min((now - startTime) / dur, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    s.base = key === 'eth' ? target + (target * eased - target) : Math.floor(target * eased);
-    // for eth keep float
-    const cur = key === 'eth' ? parseFloat((target * eased).toFixed(1)) : Math.floor(target * eased);
+    const p = Math.min((now-start)/dur, 1);
+    const e = 1-Math.pow(1-p,3);
+    const cur = s.id==='s-eth' ? parseFloat((target*e).toFixed(1)) : Math.floor(target*e);
     el.textContent = s.fmt(cur);
-    if (progress < 1) requestAnimationFrame(frame);
-    else {
-      s.base = target;
-      el.textContent = s.fmt(target);
-    }
+    if (p<1) requestAnimationFrame(frame);
+    else { s.val = target; el.textContent = s.fmt(target); }
   }
   requestAnimationFrame(frame);
-}
+});
 
-// Start counters when hero visible
-const heroObs = new IntersectionObserver(entries => {
-  if (entries[0].isIntersecting) {
-    Object.keys(stats).forEach(k => animCount(k));
-    heroObs.disconnect();
-  }
-}, { threshold: 0.1 });
-const heroStats = document.querySelector('.hero-stats');
-if (heroStats) heroObs.observe(heroStats);
-
-// Tick live every second — small realistic increments
+// live ticks
 setInterval(() => {
-  Object.keys(stats).forEach(key => {
-    const s = stats[key];
-    const el = document.getElementById(s.el);
+  Object.values(statsData).forEach(s => {
+    const d = s.tick();
+    if (!d) return;
+    s.val += d;
+    const el = document.getElementById(s.id);
     if (!el) return;
-    const d = s.delta();
-    if (d === 0) return;
-    s.base += d;
-    // Flash green briefly on change
-    el.style.textShadow = '0 0 20px #00ff41, 0 0 40px #00ff41';
-    el.textContent = s.fmt(key === 'eth' ? parseFloat(s.base.toFixed(1)) : Math.round(s.base));
-    setTimeout(() => { el.style.textShadow = ''; }, 600);
+    el.textContent = s.fmt(s.id==='s-eth' ? parseFloat(s.val.toFixed(1)) : Math.round(s.val));
+    el.classList.add('flash');
+    setTimeout(()=>el.classList.remove('flash'), 600);
   });
-}, 1200);
+}, 1500);
 
-// X FOLLOWERS LIVE
-(function() {
-  const el = document.getElementById('x-followers');
-  if (!el) return;
-  let count = 4821;
-  el.textContent = count.toLocaleString();
-  setInterval(() => {
-    if (Math.random() < 0.3) {
-      count += Math.floor(Math.random() * 3) + 1;
-      el.textContent = count.toLocaleString();
-      el.style.textShadow = '0 0 16px #00ff41';
-      setTimeout(() => el.style.textShadow = '', 500);
-    }
-  }, 4000);
-})();
-
-
-function selTrig(el) {
-  document.querySelectorAll('.trig').forEach(t => t.classList.remove('on'));
-  el.classList.add('on');
+// ── ACTIVITY FEED ────────────────────────
+const feedTypes = [
+  {label:'DEPLOYED', cls:'deploy', sts:['✓ SEALED','✓ LIVE']},
+  {label:'TRIGGER',  cls:'trigger',sts:['⚠ 90d','⚠ 180d']},
+  {label:'EXECUTED', cls:'exec',   sts:['✓ CONFIRMED','✓ DONE']},
+  {label:'MSG SENT', cls:'msg',    sts:['✓ DELIVERED','✓ CHAIN']},
+];
+const seeds = [
+  {t:feedTypes[0],a:'0x7f3a...9c2b',s:'✓ SEALED',   tm:'2s ago'},
+  {t:feedTypes[2],a:'0x4e1b...b83f',s:'✓ CONFIRMED',tm:'18s ago'},
+  {t:feedTypes[1],a:'0x8c2d...e91a',s:'⚠ 147d',     tm:'41s ago'},
+  {t:feedTypes[3],a:'0x3d7e...b22f',s:'✓ DELIVERED',tm:'1m ago'},
+  {t:feedTypes[0],a:'0xaa1f...f33b',s:'✓ LIVE',     tm:'2m ago'},
+];
+function rAddr(){const h='0123456789abcdef';const p=()=>[...Array(4)].map(()=>h[Math.floor(Math.random()*16)]).join('');return'0x'+p()+'...'+p();}
+function addRow(ev,pre=true){
+  const fb=document.getElementById('feedBody'); if(!fb) return;
+  const r=document.createElement('div'); r.className='feed-row';
+  const ok=ev.s.startsWith('✓');
+  r.innerHTML=`<span class="feed-time">${ev.tm}</span><span class="feed-type ${ev.t.cls}">${ev.t.label}</span><span class="feed-addr">${ev.a}</span><span class="${ok?'feed-ok':'feed-warn'}">${ev.s}</span>`;
+  if(pre){fb.insertBefore(r,fb.firstChild);const rows=fb.querySelectorAll('.feed-row');if(rows.length>8)rows[rows.length-1].remove();}
+  else fb.appendChild(r);
 }
-
-// WALLET
-function connectWallet(btn) {
-  btn.textContent = 'Connecting...';
-  setTimeout(() => {
-    const addr = '0x' + [...Array(4)].map(() => Math.random().toString(16).slice(2,4)).join('').toUpperCase() + '...' + [...Array(4)].map(() => Math.random().toString(16).slice(2,4)).join('').toUpperCase();
-    document.getElementById('wdot').classList.add('live');
-    document.getElementById('waddr').textContent = addr;
-    document.getElementById('waddr').style.color = 'var(--green)';
-    btn.textContent = 'Connected';
-    btn.style.borderColor = 'var(--green)';
-    btn.style.color = 'var(--green)';
-    showToast('Wallet connected: ' + addr);
-  }, 1000);
+seeds.forEach(ev=>addRow(ev,false));
+function nextFeed(){
+  const t=feedTypes[Math.floor(Math.random()*feedTypes.length)];
+  addRow({t,a:rAddr(),s:t.sts[Math.floor(Math.random()*t.sts.length)],tm:'just now'},true);
+  setTimeout(nextFeed,3000+Math.random()*3500);
 }
+setTimeout(nextFeed,4000);
 
-// DEPLOY
-function deployWill() {
-  showToast('Deploying will to chain...');
-  setTimeout(() => showToast('Will sealed. Block confirmed. Eternal.'), 2000);
-}
-
-// TOAST
-function showToast(msg, isErr = false) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast' + (isErr ? ' err' : '');
-  t.classList.add('show');
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-// FAQ
-function toggleFaq(el) {
-  const ans = el.nextElementSibling;
-  const tog = el.querySelector('.faq-toggle');
-  const isOpen = ans.style.maxHeight && ans.style.maxHeight !== '0px';
-  document.querySelectorAll('.faq-a').forEach(a => { a.style.maxHeight = '0'; a.style.padding = '0 0 0 1rem'; });
-  document.querySelectorAll('.faq-toggle').forEach(t => t.textContent = '+');
-  if (!isOpen) {
-    ans.style.maxHeight = '200px';
-    ans.style.padding = '0.8rem 0 1rem 1rem';
-    tog.textContent = '−';
+// ── X FOLLOWERS ──────────────────────────
+let xfol=4821;
+setInterval(()=>{
+  if(Math.random()<0.3){
+    xfol+=Math.floor(Math.random()*3)+1;
+    const el=document.getElementById('xfol');
+    if(el){el.textContent=xfol.toLocaleString();el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),500);}
   }
+},4500);
+
+// ── TRIGGER SELECT ───────────────────────
+function selTrig(el){document.querySelectorAll('.trig').forEach(t=>t.classList.remove('on'));el.classList.add('on');}
+
+// ── WALLET ───────────────────────────────
+function connectWallet(btn){
+  btn.textContent='Connecting...';
+  setTimeout(()=>{
+    const h='0123456789ABCDEF';const p=()=>[...Array(4)].map(()=>h[Math.floor(Math.random()*16)]).join('');
+    const addr='0x'+p()+'...'+p();
+    document.getElementById('wdot').classList.add('live');
+    document.getElementById('waddr').textContent=addr;
+    document.getElementById('waddr').style.color='var(--green)';
+    btn.textContent='Connected'; btn.style.borderColor='var(--green)'; btn.style.color='var(--green)';
+    showToast('Wallet connected: '+addr);
+  },1000);
+}
+
+// ── DEPLOY ───────────────────────────────
+function deployWill(){
+  showToast('Deploying will to chain...');
+  setTimeout(()=>showToast('Will sealed. Block confirmed. Eternal.'),2200);
+}
+
+// ── TOAST ────────────────────────────────
+function showToast(msg,err=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast'+(err?' err':'');
+  t.classList.add('show'); clearTimeout(t._t);
+  t._t=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ── FAQ ──────────────────────────────────
+function toggleFaq(el){
+  const a=el.nextElementSibling,tog=el.querySelector('.faq-toggle');
+  const open=a.style.maxHeight&&a.style.maxHeight!=='0px';
+  document.querySelectorAll('.faq-a').forEach(x=>{x.style.maxHeight='0';x.style.padding='0 0 0 1rem';});
+  document.querySelectorAll('.faq-toggle').forEach(x=>x.textContent='+');
+  if(!open){a.style.maxHeight='200px';a.style.padding='0.7rem 0 1rem 1rem';tog.textContent='−';}
 }
 </script>
 
