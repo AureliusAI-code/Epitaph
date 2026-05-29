@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPITAPH // Whitepaper</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#080c08;color:#ccffcc;font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Courier New',monospace;font-size:13px;line-height:1.7;-webkit-overflow-scrolling:touch;}
+a{color:#00ff41;text-decoration:none;}
+a:hover{text-decoration:underline;}
+@keyframes flicker{0%,100%{opacity:1}42%{opacity:1}43%{opacity:0.4}44%{opacity:1}}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+.hdr{position:fixed;top:0;left:0;right:0;z-index:500;background:rgba(8,12,8,0.98);border-bottom:1px solid rgba(0,255,65,0.18);}
+.nav{height:48px;padding:0 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,255,65,0.08);}
+.logo{font-size:1.25rem;font-weight:700;color:#00ff41;letter-spacing:0.18em;text-shadow:0 0 16px rgba(0,255,65,0.6);animation:flicker 8s infinite;}
+.logo::before{content:’> ’;color:#557755;font-size:0.9rem;}
+.nav-links{display:flex;border:1px solid rgba(0,255,65,0.15);}
+.nav-links a{padding:5px 10px;font-size:9px;letter-spacing:0.1em;color:#557755;border-right:1px solid rgba(0,255,65,0.08);text-transform:uppercase;}
+.nav-links a:last-child{border-right:none;}
+.nav-links a:hover,.nav-links a.active{color:#00ff41;background:rgba(0,255,65,0.06);text-decoration:none;}
+@media(max-width:500px){.nav-links{display:none;}}
+.ticker{height:27px;display:flex;align-items:stretch;overflow:hidden;background:rgba(0,0,0,0.5);}
+.t-badge{flex-shrink:0;display:flex;align-items:center;padding:0 12px;background:rgba(0,255,65,0.12);border-right:1px solid rgba(0,255,65,0.2);font-size:9px;color:#00ff41;letter-spacing:0.35em;}
+.t-scroll{flex:1;overflow:hidden;}
+.t-track{display:inline-flex;align-items:center;height:27px;white-space:nowrap;font-size:10px;color:#557755;animation:tick 40s linear infinite;}
+.t-track span{padding:0 24px;border-right:1px solid rgba(0,255,65,0.05);}
+
+.page{padding-top:75px;max-width:680px;margin:0 auto;padding-left:16px;padding-right:16px;padding-bottom:60px;}
+
+/* COVER */
+.cover{padding:60px 0 48px;border-bottom:1px solid rgba(0,255,65,0.08);margin-bottom:48px;}
+.cover-label{font-size:9px;color:#557755;letter-spacing:0.4em;text-transform:uppercase;margin-bottom:16px;}
+.cover-title{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:700;color:#00ff41;letter-spacing:0.05em;line-height:1.1;margin-bottom:12px;text-shadow:0 0 30px rgba(0,255,65,0.2);}
+.cover-sub{font-size:13px;color:#88aa88;margin-bottom:32px;line-height:1.8;}
+.cover-meta{display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:10px;}
+@media(max-width:400px){.cover-meta{grid-template-columns:1fr;}}
+.meta-item{border:1px solid rgba(0,255,65,0.08);padding:10px 14px;}
+.meta-k{font-size:8px;color:#557755;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:3px;}
+.meta-v{color:#ccffcc;}
+
+/* TOC */
+.toc{background:#0a0e0a;border:1px solid rgba(0,255,65,0.1);padding:24px;margin-bottom:48px;}
+.toc-title{font-size:9px;color:#00cc33;letter-spacing:0.3em;text-transform:uppercase;margin-bottom:16px;}
+.toc ol{padding-left:0;counter-reset:toc;}
+.toc li{list-style:none;counter-increment:toc;padding:4px 0;font-size:11px;color:#88aa88;border-bottom:1px solid rgba(0,255,65,0.04);}
+.toc li:last-child{border-bottom:none;}
+.toc li::before{content:counter(toc,decimal-leading-zero) ’.  ’;color:#557755;}
+.toc a{color:#88aa88;}
+.toc a:hover{color:#00ff41;}
+
+/* SECTIONS */
+.section{margin-bottom:52px;}
+.section-num{font-size:9px;color:#557755;letter-spacing:0.3em;margin-bottom:4px;}
+h1{font-size:clamp(1.2rem,3.5vw,1.5rem);font-weight:700;color:#00ff41;letter-spacing:0.05em;margin-bottom:16px;}
+h2{font-size:11px;font-weight:700;color:#ccffcc;letter-spacing:0.1em;text-transform:uppercase;margin:24px 0 8px;}
+p{font-size:12px;color:#88aa88;line-height:1.9;margin-bottom:14px;}
+ul,ol{margin:0 0 14px;padding:0;}
+li{font-size:12px;color:#88aa88;line-height:1.8;list-style:none;padding-left:18px;position:relative;margin-bottom:2px;}
+li::before{content:’→ ’;color:#00cc33;position:absolute;left:0;}
+hr{border:none;border-top:1px solid rgba(0,255,65,0.07);margin:28px 0;}
+strong{color:#ccffcc;}
+
+.quote{border-left:2px solid #00cc33;padding:14px 18px;background:rgba(0,255,65,0.03);margin:20px 0;}
+.quote p{font-style:italic;margin:0;font-size:13px;color:#aaccaa;}
+
+.formula{background:#030603;border:1px solid rgba(0,255,65,0.12);padding:16px;margin:16px 0;font-size:11px;color:#88aa88;overflow-x:auto;}
+.formula .var{color:#00ff41;}
+.formula .op{color:#ffb300;}
+
+.diagram{background:#030603;border:1px solid rgba(0,255,65,0.1);padding:20px;margin:16px 0;font-size:11px;color:#88aa88;overflow-x:auto;white-space:pre;line-height:1.7;}
+
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:11px;}
+.tbl thead tr{background:rgba(0,255,65,0.04);border-bottom:1px solid rgba(0,255,65,0.15);}
+.tbl th{padding:8px 12px;text-align:left;color:#00cc33;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;font-weight:400;}
+.tbl td{padding:8px 12px;color:#88aa88;border-bottom:1px solid rgba(0,255,65,0.04);}
+.tbl td:first-child{color:#ccffcc;}
+
+.footnote{font-size:10px;color:#557755;border-top:1px solid rgba(0,255,65,0.06);padding-top:16px;margin-top:16px;}
+.breadcrumb{font-size:9px;color:#557755;letter-spacing:0.2em;margin:32px 0 20px;}
+.breadcrumb span{color:#00cc33;}
+</style>
+
+</head>
+<body>
+
+<div class="hdr">
+  <nav class="nav">
+    <a href="index.html" class="logo">EPITAPH</a>
+    <div class="nav-links">
+      <a href="epitaph-docs.html">./docs</a>
+      <a href="epitaph-audit.html">./audit</a>
+      <a href="epitaph-whitepaper.html" class="active">./whitepaper</a>
+      <a href="index.html">./app</a>
+    </div>
+  </nav>
+  <div class="ticker">
+    <div class="t-badge">PAPER</div>
+    <div class="t-scroll">
+      <div class="t-track">
+        <span>EPITAPH PROTOCOL — Technical Whitepaper v0.1.0</span>
+        <span>On-chain last will protocol · Non-custodial · Trustless · Immutable</span>
+        <span>Base · Ethereum · Solana · Polygon</span>
+        <span>EPITAPH PROTOCOL — Technical Whitepaper v0.1.0</span>
+        <span>On-chain last will protocol · Non-custodial · Trustless · Immutable</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="breadcrumb"><span>root@epitaph:~#</span> cat /docs/whitepaper.md</div>
+
+  <!-- COVER -->
+
+  <div class="cover">
+    <div class="cover-label">Technical Whitepaper · v0.1.0 · 2026</div>
+    <div class="cover-title">Epitaph Protocol</div>
+    <div class="cover-sub">A trustless, non-custodial on-chain last will protocol for the permanent, automatic execution of final asset instructions.</div>
+    <div class="cover-meta">
+      <div class="meta-item"><div class="meta-k">Version</div><div class="meta-v">0.1.0 · Beta</div></div>
+      <div class="meta-item"><div class="meta-k">Date</div><div class="meta-v">2026</div></div>
+      <div class="meta-item"><div class="meta-k">Networks</div><div class="meta-v">Base · ETH · SOL</div></div>
+      <div class="meta-item"><div class="meta-k">Contact</div><div class="meta-v">dev@epitaph-agent.xyz</div></div>
+    </div>
+  </div>
+
+  <!-- TOC -->
+
+  <div class="toc">
+    <div class="toc-title">// Table of Contents</div>
+    <ol>
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#problem">The Problem: $140B in Lost Crypto</a></li>
+      <li><a href="#solution">The Epitaph Solution</a></li>
+      <li><a href="#architecture">Protocol Architecture</a></li>
+      <li><a href="#triggers">Trigger Mechanism</a></li>
+      <li><a href="#execution">Execution Engine</a></li>
+      <li><a href="#security">Security Model</a></li>
+      <li><a href="#tokenomics">Protocol Fee & Sustainability</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#conclusion">Conclusion</a></li>
+    </ol>
+  </div>
+
+  <!-- ABSTRACT -->
+
+  <div class="section" id="abstract">
+    <div class="section-num">01</div>
+    <h1>Abstract</h1>
+    <p>Epitaph is a non-custodial, trustless protocol that enables blockchain wallet owners to create immutable on-chain wills — programmable final instructions that execute automatically when predefined trigger conditions are met.</p>
+    <p>Unlike traditional estate planning, Epitaph requires no lawyers, notaries, or intermediaries. A will is defined once, sealed on-chain, and executed by smart contracts with mathematical certainty — regardless of geographic jurisdiction, legal system, or the passage of time.</p>
+    <div class="quote">
+      <p>"The blockchain does not mourn. It does not forget. It only executes."</p>
+    </div>
+  </div>
+
+  <!-- PROBLEM -->
+
+  <div class="section" id="problem">
+    <div class="section-num">02</div>
+    <h1>The Problem: $140B in Lost Crypto</h1>
+    <p>An estimated <strong>$140 billion in Bitcoin alone</strong> is permanently inaccessible due to lost private keys — predominantly from holders who passed away without securely transferring access to their assets.</p>
+    <p>This problem compounds annually. As the global crypto holder base grows, so does the volume of assets that will be permanently orphaned upon their holders' deaths.</p>
+
+```
+<h2>Root Causes</h2>
+<ul>
+  <li><strong>No native inheritance mechanism</strong> — blockchain wallets have no built-in succession protocol</li>
+  <li><strong>Private key dependency</strong> — assets are inaccessible without the exact private key or seed phrase</li>
+  <li><strong>No legal framework</strong> — traditional inheritance law is not designed for cryptographic assets</li>
+  <li><strong>Custodial exchange risk</strong> — centralized exchanges may freeze accounts upon holder death</li>
+  <li><strong>Fragmented multi-chain assets</strong> — assets spread across ETH, Base, SOL, and more</li>
+</ul>
+
+<table class="tbl">
+  <thead><tr><th>Asset Class</th><th>Estimated Permanently Lost</th></tr></thead>
+  <tbody>
+    <tr><td>Bitcoin (BTC)</td><td>~$140B+</td></tr>
+    <tr><td>Ethereum (ETH)</td><td>~$20B+</td></tr>
+    <tr><td>All ERC-20 tokens</td><td>Unknown — estimated $50B+</td></tr>
+    <tr><td>NFTs</td><td>Incalculable</td></tr>
+  </tbody>
+</table>
+```
+
+  </div>
+
+  <!-- SOLUTION -->
+
+  <div class="section" id="solution">
+    <div class="section-num">03</div>
+    <h1>The Epitaph Solution</h1>
+    <p>Epitaph introduces a primitive that has been missing from blockchain infrastructure since its inception: <strong>programmable, trustless last wills.</strong></p>
+    <p>A user deploys a Will — a smart contract object defining trigger conditions, beneficiary distribution, and optional final message. The Will sits dormant on-chain, consuming no gas, until its trigger condition is met. At that point, execution is automatic, irreversible, and mathematically guaranteed.</p>
+
+```
+<div class="diagram">┌─────────────────────────────────────────────────┐
+```
+
+│  EPITAPH WILL LIFECYCLE                         │
+│                                                 │
+│  [OWNER]                                        │
+│    │                                            │
+│    ├─ deployWill() ──────────► [ACTIVE]         │
+│    │                              │             │
+│    ├─ pingActivity() ◄────────────┤             │
+│    │   (resets timer)             │             │
+│    │                         trigger met?       │
+│    ├─ revokeWill() ──► [REVOKED]  │             │
+│    │                              ▼             │
+│    │                         [EXECUTED]         │
+│    │                              │             │
+│    │                         assets distributed │
+│    │                         message delivered  │
+└─────────────────────────────────────────────────┘</div>
+
+  </div>
+
+  <!-- ARCHITECTURE -->
+
+  <div class="section" id="architecture">
+    <div class="section-num">04</div>
+    <h1>Protocol Architecture</h1>
+    <p>Epitaph consists of three core smart contracts deployed on Base (primary), with cross-chain execution planned via LayerZero and Wormhole.</p>
+
+```
+<h2>EpitaphCore</h2>
+<p>The primary contract. Handles will creation, modification, activity pinging, revocation, and execution. All will state lives here.</p>
+
+<h2>EpitaphRegistry</h2>
+<p>An indexing contract that maps wallet addresses to their associated will IDs. Enables efficient lookups for automation networks and frontends.</p>
+
+<h2>EpitaphVault (planned)</h2>
+<p>An optional escrow module for users who wish to pre-deposit assets into a protocol-managed vault rather than relying on in-wallet distribution at execution time.</p>
+
+<h2>Automation Layer</h2>
+<p>Epitaph is designed to be execution-agnostic. The executeWill() function is public and permissionless — it can be called by:</p>
+<ul>
+  <li>Chainlink Automation (primary, decentralized)</li>
+  <li>Gelato Network (alternative, cost-optimized)</li>
+  <li>Any EOA or contract (fully permissionless)</li>
+</ul>
+```
+
+  </div>
+
+  <!-- TRIGGERS -->
+
+  <div class="section" id="triggers">
+    <div class="section-num">05</div>
+    <h1>Trigger Mechanism</h1>
+    <p>A trigger is a boolean condition that, when satisfied, makes a will eligible for execution. Epitaph supports four trigger types:</p>
+
+```
+<h2>Inactivity Trigger</h2>
+<p>The most common trigger. Fires if the owner wallet has had no on-chain transactions for a specified number of days (30–3,650).</p>
+<div class="formula">
+  <span class="var">triggered</span> <span class="op">=</span> block.timestamp <span class="op">≥</span> lastActivityAt <span class="op">+</span> inactivitySeconds
+</div>
+
+<h2>Date Trigger</h2>
+<p>Fires at a specific Unix timestamp. Useful for time-locked transfers, scheduled distributions to heirs on a particular date, or expiry-based wills.</p>
+
+<h2>Multi-Sig Trigger</h2>
+<p>Requires 2-of-3 designated guardian addresses to confirm before execution. Provides human verification as an additional safeguard against false inactivity triggers (e.g., owner is in a coma, not deceased).</p>
+
+<h2>Price Trigger (Planned)</h2>
+<p>Fires when an asset price crosses a threshold, verified via Chainlink price feeds. Enables conditional wills: "If ETH reaches $10,000, transfer to beneficiary."</p>
+```
+
+  </div>
+
+  <!-- EXECUTION -->
+
+  <div class="section" id="execution">
+    <div class="section-num">06</div>
+    <h1>Execution Engine</h1>
+    <p>When a trigger condition is met, any party may call executeWill(). The execution engine:</p>
+    <ul>
+      <li>Verifies will status is ACTIVE</li>
+      <li>Verifies trigger condition is satisfied</li>
+      <li>Sets will status to EXECUTED (prevents reentrancy)</li>
+      <li>Collects 0.5% protocol fee from total assets</li>
+      <li>Distributes ETH proportionally to beneficiaries</li>
+      <li>Distributes each specified ERC-20 proportionally</li>
+      <li>Emits WillExecuted event (triggers message delivery)</li>
+    </ul>
+
+```
+<h2>Beneficiary Distribution</h2>
+<div class="formula">
+  amount_i <span class="op">=</span> (distributable <span class="op">×</span> shareBps_i) <span class="op">/</span> 10000
+  <br>
+  distributable <span class="op">=</span> total <span class="op">−</span> (total <span class="op">×</span> 50 <span class="op">/</span> 10000)
+</div>
+```
+
+  </div>
+
+  <!-- SECURITY -->
+
+  <div class="section" id="security">
+    <div class="section-num">07</div>
+    <h1>Security Model</h1>
+
+```
+<h2>Non-Custodial Guarantee</h2>
+<p>Epitaph never holds user assets during the ACTIVE state. Assets remain in the owner's wallet until executeWill() is called. This eliminates custodial risk entirely.</p>
+
+<h2>Owner Sovereignty</h2>
+<p>Only the will owner can modify or revoke a will. The protocol enforces this via msg.sender checks. No admin key, no multisig, no upgrade path that could affect individual wills.</p>
+
+<h2>Reentrancy Protection</h2>
+<p>All state changes occur before external calls. The ReentrancyGuard modifier prevents nested execution attacks.</p>
+
+<h2>Known Limitations</h2>
+<ul>
+  <li>Price trigger requires trust in Chainlink oracle integrity</li>
+  <li>Inactivity trigger can be gamed by a hostile party submitting a transaction from the owner's wallet (mitigated by multi-sig trigger option)</li>
+  <li>Cross-chain execution relies on bridge security assumptions</li>
+</ul>
+```
+
+  </div>
+
+  <!-- TOKENOMICS -->
+
+  <div class="section" id="tokenomics">
+    <div class="section-num">08</div>
+    <h1>Protocol Fee & Sustainability</h1>
+    <p>Epitaph charges a flat <strong>0.5% fee</strong> (50 basis points) on assets distributed at execution time. This fee accrues to the protocol treasury and funds ongoing development, audits, and automation network costs.</p>
+
+```
+<table class="tbl">
+  <thead><tr><th>Action</th><th>Fee</th><th>Rationale</th></tr></thead>
+  <tbody>
+    <tr><td>Deploy will</td><td>0</td><td>No barrier to entry</td></tr>
+    <tr><td>Ping activity</td><td>0</td><td>Encourage active use</td></tr>
+    <tr><td>Revoke will</td><td>0</td><td>Owner rights are free</td></tr>
+    <tr><td>Execute will</td><td>0.5%</td><td>Value-aligned — we earn only when you do</td></tr>
+  </tbody>
+</table>
+<p>The fee model is intentionally aligned: Epitaph only earns revenue when a will executes successfully and assets are transferred. There is zero incentive to trigger wills prematurely.</p>
+```
+
+  </div>
+
+  <!-- ROADMAP -->
+
+  <div class="section" id="roadmap">
+    <div class="section-num">09</div>
+    <h1>Roadmap</h1>
+    <table class="tbl">
+      <thead><tr><th>Phase</th><th>Milestone</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Phase 0</td><td>Frontend terminal interface + wallet connect</td><td style="color:#00ff41;">✓ Complete</td></tr>
+        <tr><td>Phase 1</td><td>EpitaphCore on Base testnet</td><td style="color:#ffb300;">⟳ In Progress</td></tr>
+        <tr><td>Phase 1</td><td>Chainlink Automation integration</td><td style="color:#ffb300;">⟳ In Progress</td></tr>
+        <tr><td>Phase 2</td><td>Third-party security audit</td><td style="color:#557755;">○ Scheduled Q3 2026</td></tr>
+        <tr><td>Phase 2</td><td>Base mainnet deployment</td><td style="color:#557755;">○ Post-audit</td></tr>
+        <tr><td>Phase 3</td><td>Cross-chain execution (ETH, SOL, Polygon)</td><td style="color:#557755;">○ Planned</td></tr>
+        <tr><td>Phase 3</td><td>ZK identity for beneficiary auth</td><td style="color:#557755;">○ Research</td></tr>
+        <tr><td>Phase 4</td><td>Mobile app</td><td style="color:#557755;">○ Planned</td></tr>
+        <tr><td>Phase 4</td><td>DAO governance</td><td style="color:#557755;">○ Planned</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- CONCLUSION -->
+
+  <div class="section" id="conclusion">
+    <div class="section-num">10</div>
+    <h1>Conclusion</h1>
+    <p>Epitaph addresses a fundamental gap in blockchain infrastructure: the absence of a native, trustless succession mechanism. As digital assets become a meaningful component of global wealth, the need for programmable, jurisdiction-independent inheritance will only grow.</p>
+    <p>By building on Base and leveraging the security of Ethereum's settlement layer, Epitaph provides a permanent, low-cost, and non-custodial solution to one of crypto's most underserved problems.</p>
+    <p>Your instructions. Immutable. Eternal.</p>
+    <div class="quote">
+      <p>"When you're gone, your crypto shouldn't be."</p>
+    </div>
+  </div>
+
+  <hr>
+  <div class="footnote">
+    <p>© 2026 Epitaph Protocol · <a href="https://www.epitaph-agent.xyz">epitaph-agent.xyz</a> · <a href="https://x.com/EpitaphAI" target="_blank">@EpitaphAI</a> · <a href="https://github.com/Epitaph-AI/EpitaphAI" target="_blank">GitHub</a></p>
+    <p style="margin-top:6px;">This whitepaper is provided for informational purposes only and does not constitute financial or legal advice. Smart contracts involve risk. Use at your own discretion.</p>
+  </div>
+</div>
+</body>
+</html>
