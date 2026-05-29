@@ -546,22 +546,174 @@ function selTrig(el){
   el.textContent='[✓] '+el.textContent.replace(/^\[.?\] /,'');
 }
 
-// ── WALLET ───────────────────────
-function connectWallet(btn){
-  btn.textContent='[ Connecting... ]';
-  setTimeout(()=>{
-    const h='0123456789ABCDEF',p=()=>[...Array(4)].map(()=>h[~~(Math.random()*16)]).join('');
-    const addr='0x'+p()+'...'+p();
-    const dot=document.getElementById('wdot');
-    if(dot){dot.style.background='#00ff41';dot.style.boxShadow='0 0 4px #00ff41';}
-    const wa=document.getElementById('waddr');if(wa){wa.textContent=addr;wa.style.color='#00ff41';}
-    btn.textContent='[ Connected ]';btn.style.borderColor='#00ff41';btn.style.color='#00ff41';
-    showToast('Wallet connected: '+addr);
-  },1000);
+// ── REAL WALLET CONNECT ──────────
+let connectedAddress = null;
+let provider = null;
+
+// Load ethers.js from CDN
+const ethersScript = document.createElement('script');
+ethersScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js';
+document.head.appendChild(ethersScript);
+
+function shortAddr(addr){
+  return addr.slice(0,6)+'...'+addr.slice(-4);
 }
 
-// ── DEPLOY ───────────────────────
-function deployWill(){showToast('Deploying will to chain...');setTimeout(()=>showToast('Will sealed. Block confirmed. Eternal.'),2200);}
+function setConnected(addr){
+  connectedAddress = addr;
+  const dot = document.getElementById('wdot');
+  const wa  = document.getElementById('waddr');
+  const btn = document.getElementById('wBtn');
+  if(dot){ dot.style.background='#00ff41'; dot.style.boxShadow='0 0 6px #00ff41'; dot.style.animation='none'; }
+  if(wa) { wa.textContent=shortAddr(addr); wa.style.color='#00ff41'; }
+  if(btn){ btn.textContent='[ '+shortAddr(addr)+' ]'; btn.style.borderColor='#00ff41'; btn.style.color='#00ff41'; }
+  showToast('✓ Connected: '+shortAddr(addr));
+  // Also update nav if wallet indicator exists
+  const navDot = document.getElementById('navWalletDot');
+  if(navDot){ navDot.style.background='#00ff41'; navDot.style.boxShadow='0 0 6px #00ff41'; }
+}
+
+function setDisconnected(){
+  connectedAddress = null;
+  const dot = document.getElementById('wdot');
+  const wa  = document.getElementById('waddr');
+  const btn = document.getElementById('wBtn');
+  if(dot){ dot.style.background='#ff4444'; dot.style.boxShadow='0 0 4px #ff4444'; dot.style.animation=''; }
+  if(wa) { wa.textContent='NOT CONNECTED'; wa.style.color='#557755'; }
+  if(btn){ btn.textContent='[ Connect Wallet ]'; btn.style.borderColor='#00cc33'; btn.style.color='#00ff41'; }
+}
+
+async function connectWallet(btn){
+  // Check if MetaMask or any injected wallet exists
+  if(typeof window.ethereum === 'undefined'){
+    // No injected wallet — show modal to choose
+    showWalletModal();
+    return;
+  }
+  try {
+    btn.textContent='[ Connecting... ]';
+    const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
+    if(accounts && accounts.length > 0){
+      setConnected(accounts[0]);
+      // Listen for account changes
+      window.ethereum.on('accountsChanged', (accs)=>{
+        if(accs.length === 0) setDisconnected();
+        else setConnected(accs[0]);
+      });
+      window.ethereum.on('disconnect', setDisconnected);
+    }
+  } catch(err){
+    btn.textContent='[ Connect Wallet ]';
+    if(err.code === 4001){
+      showToast('⚠ Connection rejected by user');
+    } else {
+      showToast('⚠ '+( err.message || 'Connection failed'));
+    }
+  }
+}
+
+// ── WALLET MODAL ─────────────────
+function showWalletModal(){
+  // Remove existing modal if any
+  const existing = document.getElementById('walletModal');
+  if(existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'walletModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+  modal.innerHTML = `
+    <div style="background:#0c100c;border:1px solid rgba(0,255,65,0.25);max-width:380px;width:100%;font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Courier New',monospace;">
+      <div style="padding:16px 20px;border-bottom:1px solid rgba(0,255,65,0.1);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:11px;color:#00ff41;letter-spacing:0.15em;font-weight:700;">// CONNECT WALLET</span>
+        <span onclick="document.getElementById('walletModal').remove()" style="color:#557755;cursor:pointer;font-size:1.2rem;line-height:1;">&times;</span>
+      </div>
+      <div style="padding:20px;">
+        <div style="font-size:9px;color:#557755;letter-spacing:0.2em;margin-bottom:16px;text-transform:uppercase;">Choose your wallet</div>
+        
+        <!-- MetaMask -->
+        <div onclick="openWallet('metamask')" style="display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid rgba(0,255,65,0.1);margin-bottom:8px;cursor:pointer;background:rgba(0,0,0,0.3);transition:border-color 0.2s;" onmouseover="this.style.borderColor='rgba(0,255,65,0.35)'" onmouseout="this.style.borderColor='rgba(0,255,65,0.1)'">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" style="width:32px;height:32px;" onerror="this.style.display='none'">
+          <div>
+            <div style="font-size:12px;color:#ccffcc;font-weight:700;letter-spacing:0.08em;">MetaMask</div>
+            <div style="font-size:9px;color:#557755;margin-top:2px;">Most popular · Browser extension</div>
+          </div>
+          <div style="margin-left:auto;font-size:9px;color:#00ff41;letter-spacing:0.1em;">INSTALL →</div>
+        </div>
+
+        <!-- Coinbase Wallet -->
+        <div onclick="openWallet('coinbase')" style="display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid rgba(0,255,65,0.1);margin-bottom:8px;cursor:pointer;background:rgba(0,0,0,0.3);" onmouseover="this.style.borderColor='rgba(0,255,65,0.35)'" onmouseout="this.style.borderColor='rgba(0,255,65,0.1)'">
+          <div style="width:32px;height:32px;background:#0052ff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">&#9679;</div>
+          <div>
+            <div style="font-size:12px;color:#ccffcc;font-weight:700;letter-spacing:0.08em;">Coinbase Wallet</div>
+            <div style="font-size:9px;color:#557755;margin-top:2px;">Easy · Mobile & Extension</div>
+          </div>
+          <div style="margin-left:auto;font-size:9px;color:#00ff41;letter-spacing:0.1em;">INSTALL →</div>
+        </div>
+
+        <!-- WalletConnect -->
+        <div onclick="openWallet('walletconnect')" style="display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid rgba(0,255,65,0.1);margin-bottom:8px;cursor:pointer;background:rgba(0,0,0,0.3);" onmouseover="this.style.borderColor='rgba(0,255,65,0.35)'" onmouseout="this.style.borderColor='rgba(0,255,65,0.1)'">
+          <div style="width:32px;height:32px;background:#3b99fc;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">&#11835;</div>
+          <div>
+            <div style="font-size:12px;color:#ccffcc;font-weight:700;letter-spacing:0.08em;">WalletConnect</div>
+            <div style="font-size:9px;color:#557755;margin-top:2px;">Scan QR · 300+ wallets</div>
+          </div>
+          <div style="margin-left:auto;font-size:9px;color:#00ff41;letter-spacing:0.1em;">SCAN QR →</div>
+        </div>
+
+        <div style="font-size:9px;color:#334433;text-align:center;margin-top:16px;line-height:1.6;">
+          By connecting you agree to Epitaph's terms.<br>
+          We never store your private keys.
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  // Close on backdrop click
+  modal.addEventListener('click', e => { if(e.target === modal) modal.remove(); });
+}
+
+function openWallet(type){
+  const links = {
+    metamask: 'https://metamask.io/download/',
+    coinbase:  'https://www.coinbase.com/wallet/downloads',
+    walletconnect: 'https://walletconnect.com/',
+  };
+  window.open(links[type], '_blank');
+  document.getElementById('walletModal')?.remove();
+  showToast('Opening '+type+' in new tab...');
+}
+
+// Auto-detect if already connected on page load
+window.addEventListener('load', async ()=>{
+  if(typeof window.ethereum !== 'undefined'){
+    try {
+      const accounts = await window.ethereum.request({ method:'eth_accounts' });
+      if(accounts && accounts.length > 0){
+        setConnected(accounts[0]);
+      }
+    } catch(e){}
+  }
+});
+
+// ── DEPLOY WILL ──────────────────
+async function deployWill(){
+  if(!connectedAddress){
+    showToast('⚠ Connect your wallet first');
+    document.getElementById('wBtn')?.click();
+    return;
+  }
+
+  // Check required fields
+  const beneficiary = document.querySelector('input[placeholder*="0x..."]')?.value;
+  if(!beneficiary){
+    showToast('⚠ Enter a beneficiary wallet address');
+    return;
+  }
+
+  showToast('⚠ Smart contract coming soon. Wallet connected: '+shortAddr(connectedAddress));
+  // TODO: When smart contract is deployed, replace with:
+  // const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+  // await contract.createWill(beneficiary, triggerDays, encryptedMessage);
+}
 
 // ── TOAST ────────────────────────
 function showToast(msg){
