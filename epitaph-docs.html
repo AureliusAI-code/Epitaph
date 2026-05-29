@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPITAPH // Documentation</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#080c08;color:#ccffcc;font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Courier New',monospace;font-size:13px;line-height:1.7;-webkit-overflow-scrolling:touch;}
+a{color:#00ff41;text-decoration:none;}
+a:hover{text-decoration:underline;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes flicker{0%,100%{opacity:1}42%{opacity:1}43%{opacity:0.4}44%{opacity:1}}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* HEADER */
+.hdr{position:fixed;top:0;left:0;right:0;z-index:500;background:rgba(8,12,8,0.98);border-bottom:1px solid rgba(0,255,65,0.18);}
+.nav{height:48px;padding:0 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,255,65,0.08);}
+.logo{font-size:1.25rem;font-weight:700;color:#00ff41;letter-spacing:0.18em;text-shadow:0 0 16px rgba(0,255,65,0.6);animation:flicker 8s infinite;}
+.logo::before{content:’> ’;color:#557755;font-size:0.9rem;}
+.nav-links{display:flex;border:1px solid rgba(0,255,65,0.15);}
+.nav-links a{padding:5px 10px;font-size:9px;letter-spacing:0.1em;color:#557755;border-right:1px solid rgba(0,255,65,0.08);text-transform:uppercase;}
+.nav-links a:last-child{border-right:none;}
+.nav-links a:hover,.nav-links a.active{color:#00ff41;background:rgba(0,255,65,0.06);text-decoration:none;}
+@media(max-width:500px){.nav-links{display:none;}}
+
+/* TICKER */
+.ticker{height:27px;display:flex;align-items:stretch;overflow:hidden;background:rgba(0,0,0,0.5);}
+.t-badge{flex-shrink:0;display:flex;align-items:center;padding:0 12px;background:rgba(0,255,65,0.12);border-right:1px solid rgba(0,255,65,0.2);font-size:9px;color:#00ff41;letter-spacing:0.35em;}
+.t-scroll{flex:1;overflow:hidden;}
+.t-track{display:inline-flex;align-items:center;height:27px;white-space:nowrap;font-size:10px;color:#557755;animation:tick 40s linear infinite;}
+.t-track span{padding:0 24px;border-right:1px solid rgba(0,255,65,0.05);}
+
+/* LAYOUT */
+.page{padding-top:75px;display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:220px;flex-shrink:0;border-right:1px solid rgba(0,255,65,0.1);padding:32px 0;position:sticky;top:75px;height:calc(100vh - 75px);overflow-y:auto;}
+@media(max-width:680px){.sidebar{display:none;}}
+.sidebar-section{margin-bottom:24px;}
+.sidebar-title{font-size:8px;color:#00cc33;letter-spacing:0.35em;text-transform:uppercase;padding:0 20px;margin-bottom:8px;}
+.sidebar a{display:block;padding:5px 20px;font-size:10px;color:#557755;letter-spacing:0.05em;transition:all 0.15s;}
+.sidebar a:hover,.sidebar a.active{color:#00ff41;background:rgba(0,255,65,0.05);text-decoration:none;}
+.sidebar a::before{content:’- ’;}
+
+/* MAIN CONTENT */
+.main{flex:1;padding:40px 32px;max-width:760px;}
+@media(max-width:680px){.main{padding:28px 16px;}}
+
+/* SECTION */
+.doc-section{margin-bottom:56px;}
+.doc-section h1{font-size:clamp(1.4rem,4vw,1.8rem);font-weight:700;color:#00ff41;letter-spacing:0.05em;margin-bottom:6px;}
+.doc-section h2{font-size:1rem;font-weight:700;color:#00ff41;letter-spacing:0.08em;margin:28px 0 10px;padding-top:20px;border-top:1px solid rgba(0,255,65,0.06);}
+.doc-section h3{font-size:11px;font-weight:700;color:#ccffcc;letter-spacing:0.1em;text-transform:uppercase;margin:20px 0 8px;}
+.doc-section p{font-size:12px;color:#88aa88;line-height:1.85;margin-bottom:12px;}
+.doc-section ul,.doc-section ol{margin:0 0 12px 0;padding-left:0;}
+.doc-section li{font-size:12px;color:#88aa88;line-height:1.8;list-style:none;padding-left:16px;position:relative;}
+.doc-section li::before{content:’→ ’;color:#00cc33;position:absolute;left:0;}
+
+/* CODE BLOCK */
+.code{background:#030603;border:1px solid rgba(0,255,65,0.15);padding:16px;margin:12px 0;overflow-x:auto;position:relative;}
+.code pre{font-size:11px;color:#88aa88;line-height:1.8;white-space:pre;}
+.code .cm{color:#557755;}
+.code .kw{color:#00ff41;}
+.code .st{color:#ffb300;}
+.code .ok{color:#00ff41;}
+.code-label{font-size:8px;color:#557755;letter-spacing:0.25em;text-transform:uppercase;margin-bottom:8px;}
+
+/* CALLOUT */
+.callout{border-left:2px solid #00cc33;padding:12px 16px;background:rgba(0,255,65,0.03);margin:16px 0;}
+.callout.warn{border-color:#ffb300;background:rgba(255,179,0,0.03);}
+.callout.danger{border-color:#ff4444;background:rgba(255,68,68,0.03);}
+.callout p{margin:0;font-size:11px;}
+.callout-title{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:4px;}
+.callout-title.info{color:#00ff41;}
+.callout-title.warn{color:#ffb300;}
+.callout-title.danger{color:#ff4444;}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;margin:12px 0;font-size:11px;}
+.tbl thead tr{background:rgba(0,255,65,0.04);border-bottom:1px solid rgba(0,255,65,0.15);}
+.tbl th{padding:8px 12px;text-align:left;color:#00cc33;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;font-weight:400;}
+.tbl td{padding:8px 12px;color:#88aa88;border-bottom:1px solid rgba(0,255,65,0.04);}
+.tbl td:first-child{color:#00ff41;}
+.badge{display:inline-block;padding:1px 6px;font-size:8px;letter-spacing:0.1em;border:1px solid;text-transform:uppercase;}
+.bl{border-color:#00ff41;color:#00ff41;}
+.bs{border-color:#ffb300;color:#ffb300;}
+.br{border-color:#ff4444;color:#ff4444;}
+
+/* PAGE TABS */
+.tabs{display:flex;border-bottom:1px solid rgba(0,255,65,0.1);margin-bottom:32px;}
+.tab{padding:8px 20px;font-size:10px;letter-spacing:0.12em;color:#557755;cursor:pointer;text-transform:uppercase;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.tab:hover{color:#88aa88;}
+.tab.active{color:#00ff41;border-bottom-color:#00ff41;}
+
+/* DIVIDER */
+hr.doc{border:none;border-top:1px solid rgba(0,255,65,0.07);margin:24px 0;}
+
+/* BREADCRUMB */
+.breadcrumb{font-size:9px;color:#557755;letter-spacing:0.2em;margin-bottom:20px;}
+.breadcrumb span{color:#00cc33;}
+</style>
+
+</head>
+<body>
+
+<div class="hdr">
+  <nav class="nav">
+    <a href="index.html" class="logo">EPITAPH</a>
+    <div class="nav-links">
+      <a href="epitaph-docs.html" class="active">./docs</a>
+      <a href="epitaph-audit.html">./audit</a>
+      <a href="epitaph-whitepaper.html">./whitepaper</a>
+      <a href="index.html">./app</a>
+    </div>
+  </nav>
+  <div class="ticker">
+    <div class="t-badge">DOCS</div>
+    <div class="t-scroll">
+      <div class="t-track">
+        <span>EPITAPH PROTOCOL v0.1.0 — Documentation</span>
+        <span>EpitaphCore.sol — Base · ETH · SOL</span>
+        <span>Non-custodial · Trustless · Immutable</span>
+        <span>EPITAPH PROTOCOL v0.1.0 — Documentation</span>
+        <span>EpitaphCore.sol — Base · ETH · SOL</span>
+        <span>Non-custodial · Trustless · Immutable</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- SIDEBAR -->
+
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Getting Started</div>
+      <a href="#overview" class="active">Overview</a>
+      <a href="#quickstart">Quick Start</a>
+      <a href="#concepts">Core Concepts</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Protocol</div>
+      <a href="#triggers">Trigger Types</a>
+      <a href="#actions">Actions</a>
+      <a href="#beneficiaries">Beneficiaries</a>
+      <a href="#messages">Final Messages</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Smart Contracts</div>
+      <a href="#contracts">Contract Overview</a>
+      <a href="#deploy-will">deployWill()</a>
+      <a href="#execute-will">executeWill()</a>
+      <a href="#revoke">revokeWill()</a>
+      <a href="#ping">pingActivity()</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Integration</div>
+      <a href="#wallet-connect">Wallet Connect</a>
+      <a href="#automation">Automation</a>
+      <a href="#sdk">SDK</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Resources</div>
+      <a href="epitaph-audit.html">Audit Report</a>
+      <a href="epitaph-whitepaper.html">Whitepaper</a>
+      <a href="https://github.com/Epitaph-AI/EpitaphAI" target="_blank">GitHub</a>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+
+  <div class="main">
+    <div class="breadcrumb"><span>root@epitaph:~#</span> cat /docs/README.md</div>
+
+```
+<!-- OVERVIEW -->
+<div class="doc-section" id="overview">
+  <h1>Documentation</h1>
+  <p style="color:#557755;font-size:11px;letter-spacing:0.1em;">EPITAPH PROTOCOL v0.1.0 · BETA</p>
+  <hr class="doc">
+  <p>Epitaph is a non-custodial, on-chain last will protocol. It allows any wallet owner to deploy immutable final instructions — asset transfers, token burns, encrypted messages — that execute automatically when predefined trigger conditions are met.</p>
+  <p>No lawyers. No notaries. No intermediaries. Just code.</p>
+
+  <div class="callout">
+    <div class="callout-title info">// NOTE</div>
+    <p>Epitaph is currently in beta. Smart contracts are pending audit. Use on mainnet at your own risk.</p>
+  </div>
+
+  <h2>Key Properties</h2>
+  <ul>
+    <li><strong style="color:#ccffcc;">Non-custodial</strong> — Epitaph never holds your assets</li>
+    <li><strong style="color:#ccffcc;">Trustless</strong> — Smart contracts execute without human intermediary</li>
+    <li><strong style="color:#ccffcc;">Immutable on execution</strong> — Once trigger fires, cannot be stopped</li>
+    <li><strong style="color:#ccffcc;">Owner-controlled</strong> — Only you can modify before execution</li>
+    <li><strong style="color:#ccffcc;">Multi-chain</strong> — Base, Ethereum, Solana, Polygon</li>
+  </ul>
+</div>
+
+<!-- QUICKSTART -->
+<div class="doc-section" id="quickstart">
+  <h1>Quick Start</h1>
+  <hr class="doc">
+
+  <h2>1. Connect Your Wallet</h2>
+  <p>Visit <a href="https://www.epitaph-agent.xyz">epitaph-agent.xyz</a> and connect your wallet via MetaMask, Coinbase Wallet, or any WalletConnect-compatible wallet.</p>
+
+  <h2>2. Configure Your Will</h2>
+  <p>Set your trigger condition, beneficiary wallets, asset distribution, and an optional encrypted final message.</p>
+
+  <div class="code">
+    <div class="code-label">// Example: Deploy via CLI</div>
+    <pre><span class="ok">$</span> epitaph connect --wallet 0x7f3a...9c2b
+```
+
+<span class="cm">→ Found: 4.2 ETH | 12,000 USDC | 3 NFTs</span>
+<span class="ok">✓ Wallet connected.</span>
+
+<span class="ok">$</span> epitaph will   
+–trigger inactivity_180d   
+–beneficiary 0x4e1…b83f:60   
+–beneficiary 0x9a2…c11d:40   
+–message “encrypted://QmHash…”
+
+<span class="ok">$</span> epitaph deploy –sign
+<span class="cm">⚠ Irreversible. Confirm? [y/N]:</span> y
+<span class="ok">✓ Will deployed. Block #21847293. Immutable. Eternal.</span></pre>
+</div>
+
+```
+  <h2>3. Stay Active</h2>
+  <p>For inactivity-based wills, any on-chain transaction from your wallet resets the timer. You can also explicitly ping:</p>
+  <div class="code">
+    <pre><span class="ok">$</span> epitaph ping --will-id 7
+```
+
+<span class="ok">✓ Activity confirmed. Timer reset.</span></pre>
+</div>
+</div>
+
+```
+<!-- CONCEPTS -->
+<div class="doc-section" id="concepts">
+  <h1>Core Concepts</h1>
+  <hr class="doc">
+
+  <h2>Will Lifecycle</h2>
+  <div class="code">
+    <pre>DEPLOY → ACTIVE → [trigger met] → EXECUTED
+            ↓
+       [owner revokes]
+            ↓
+        REVOKED</pre>
+  </div>
+
+  <h2>Protocol Fee</h2>
+  <p>Epitaph charges a 0.5% fee (50 basis points) on assets distributed upon execution. There are no upfront costs, no subscriptions, and no gas fees beyond network costs.</p>
+
+  <table class="tbl">
+    <thead><tr><th>Action</th><th>Fee</th></tr></thead>
+    <tbody>
+      <tr><td>Deploy will</td><td>Gas only</td></tr>
+      <tr><td>Ping activity</td><td>Gas only</td></tr>
+      <tr><td>Revoke will</td><td>Gas only</td></tr>
+      <tr><td>Execute will</td><td>0.5% of distributed assets</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- TRIGGERS -->
+<div class="doc-section" id="triggers">
+  <h1>Trigger Types</h1>
+  <hr class="doc">
+
+  <h2>INACTIVITY</h2>
+  <p>Executes if the owner wallet has no on-chain activity for a specified number of days. Minimum 30 days, maximum 3,650 days (10 years).</p>
+  <div class="code">
+    <pre><span class="kw">TriggerType.INACTIVITY</span>
+```
+
+inactivityDays: <span class="st">180</span>  <span class="cm">// 6 months of silence</span></pre>
+</div>
+
+```
+  <h2>DATE</h2>
+  <p>Executes at a specific Unix timestamp. Useful for time-locked transfers or scheduled distributions.</p>
+  <div class="code">
+    <pre><span class="kw">TriggerType.DATE</span>
+```
+
+triggerDate: <span class="st">1893456000</span>  <span class="cm">// Jan 1, 2030</span></pre>
+</div>
+
+```
+  <h2>MULTISIG</h2>
+  <p>Requires 2-of-3 designated guardian addresses to confirm before execution. Useful as an additional safeguard against false inactivity triggers.</p>
+  <div class="code">
+    <pre><span class="kw">TriggerType.MULTISIG</span>
+```
+
+guardians: [<span class="st">0xGuardian1</span>, <span class="st">0xGuardian2</span>, <span class="st">0xGuardian3</span>]
+threshold: <span class="st">2</span>  <span class="cm">// 2 of 3 must confirm</span></pre>
+</div>
+
+```
+  <h2>PRICE <span class="badge bs">SOON</span></h2>
+  <p>Executes when an asset price crosses a threshold, verified via Chainlink oracle.</p>
+</div>
+
+<!-- ACTIONS -->
+<div class="doc-section" id="actions">
+  <h1>Actions</h1>
+  <hr class="doc">
+  <table class="tbl">
+    <thead><tr><th>Action</th><th>Description</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>TRANSFER</td><td>Send ETH and ERC20 tokens to beneficiaries per share</td><td><span class="badge bl">LIVE</span></td></tr>
+      <tr><td>BURN</td><td>Send tokens to 0x000...dead address permanently</td><td><span class="badge bl">LIVE</span></td></tr>
+      <tr><td>DAO_DONATE</td><td>Transfer assets to a specified DAO treasury</td><td><span class="badge bl">LIVE</span></td></tr>
+      <tr><td>ALL</td><td>Transfer + deliver final message simultaneously</td><td><span class="badge bl">LIVE</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- CONTRACTS -->
+<div class="doc-section" id="contracts">
+  <h1>Smart Contracts</h1>
+  <hr class="doc">
+  <table class="tbl">
+    <thead><tr><th>Contract</th><th>Network</th><th>Address</th></tr></thead>
+    <tbody>
+      <tr><td>EpitaphCore</td><td>Base Mainnet</td><td style="color:#557755;">pending deployment</td></tr>
+      <tr><td>EpitaphCore</td><td>Base Sepolia</td><td style="color:#557755;">pending deployment</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="deploy-will">deployWill()</h2>
+  <div class="code">
+    <pre><span class="kw">function</span> deployWill(
+```
+
+TriggerType   _triggerType,
+ActionType    _actionType,
+uint256       _inactivityDays,
+uint256       _triggerDate,
+Beneficiary[] _beneficiaries,
+string        _encryptedMsg,
+address[3]    _guardians
+) <span class="kw">external returns</span> (uint256 willId)</pre>
+</div>
+
+```
+  <h2 id="execute-will">executeWill()</h2>
+  <p>Can be called by anyone — designed for Chainlink Automation or Gelato.</p>
+  <div class="code">
+    <pre><span class="kw">function</span> executeWill(
+```
+
+uint256   willId,
+address[] tokens
+) <span class="kw">external nonReentrant</span></pre>
+</div>
+
+```
+  <h2 id="revoke">revokeWill()</h2>
+  <div class="code">
+    <pre><span class="kw">function</span> revokeWill(uint256 willId) <span class="kw">external</span>
+```
+
+<span class="cm">// Only callable by will owner. Irreversible.</span></pre>
+</div>
+
+```
+  <h2 id="ping">pingActivity()</h2>
+  <div class="code">
+    <pre><span class="kw">function</span> pingActivity(uint256 willId) <span class="kw">external</span>
+```
+
+<span class="cm">// Resets inactivity timer. Prove you are still alive.</span></pre>
+</div>
+</div>
+
+```
+<!-- AUTOMATION -->
+<div class="doc-section" id="automation">
+  <h1>Automation</h1>
+  <hr class="doc">
+  <p>Epitaph wills are executed by on-chain automation networks. No centralized server is required.</p>
+
+  <h2>Chainlink Automation</h2>
+  <p>Register your will with Chainlink Automation to have it monitored and executed automatically when trigger conditions are met.</p>
+
+  <h2>Gelato Network</h2>
+  <p>Alternative automation provider. Lower cost for high-frequency monitoring.</p>
+
+  <div class="callout warn">
+    <div class="callout-title warn">// WARNING</div>
+    <p>If no automation is registered, the will must be manually executed by calling executeWill() after the trigger fires.</p>
+  </div>
+</div>
+
+<hr class="doc">
+<p style="font-size:10px;color:#334433;text-align:center;padding:20px 0;">
+  EPITAPH PROTOCOL v0.1.0 · <a href="https://www.epitaph-agent.xyz">epitaph-agent.xyz</a> · <a href="https://github.com/Epitaph-AI/EpitaphAI" target="_blank">GitHub</a>
+</p>
+```
+
+  </div>
+</div>
+
+<script>
+// Highlight active sidebar link on scroll
+const sections = document.querySelectorAll('[id]');
+const sideLinks = document.querySelectorAll('.sidebar a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if(window.scrollY >= s.offsetTop - 100) current = s.id; });
+  sideLinks.forEach(a => {
+    a.classList.remove('active');
+    if(a.getAttribute('href') === '#' + current) a.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
